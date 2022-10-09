@@ -1,4 +1,3 @@
-from genericpath import isfile
 import os
 from time import sleep
 import webbrowser
