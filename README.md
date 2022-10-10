@@ -1,28 +1,22 @@
 # Introduction
 
-To find our meeting notes, please see the meeting notes folder
-To find our project development plan and tech stack description, please see **CSC302 A1.pdf**
+To find our **meeting notes**, please see the meeting notes folder<br />
+To find our project development plan and tech stack description, please see **CSC302 A1.pdf**<br />
+To find our data, please see the **data** folder<br />
+To find our scripts, please see the **scripts** folder<br />
 
-# Building
-This application involves **Python** and the **datasette** package. We have considered **Docker** but for the initial milestone we have put that on hold.
+This application involves the **Python** language and the **datasette** and **sqlite-utils** packages. 
 
-## Python3 and Datasette
+# Cloning
+Run the following command in your terminal to clone the repository.
 ```
-pip3 install datasette sqlite-utils
-python3 main.py
+git clone https://github.com/philippejlyu/CSC302.git
 ```
 
 ## Running
-After running the Python pip script and adding the requisite Docker files, perform.
-
+Navigate to the root directory of the cloned repository locally (folder named `CSC302`) and execute the following command in your terminal to run the application in a browser window:
 ```
 ./run.sh
 ```
 
-## Docker script
-```
-ADD . /scripts
-WORKDIR scripts
-EXPOSE 80 8000
-CMD ['python', 'manage.py', 'runserver', '0.0.0.0:80']
-```
+Since this is a toy application that can be built and run with just one shell file, we decided to put the Docker containerization on hold until A2.
