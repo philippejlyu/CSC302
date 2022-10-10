@@ -13,7 +13,7 @@ Run the following command in your terminal to clone the repository.
 git clone https://github.com/philippejlyu/CSC302.git
 ```
 
-## Running
+# Running
 Navigate to the root directory of the cloned repository locally (folder named `CSC302`) and execute the following command in your terminal to run the application in a browser window:
 ```
 ./run.sh
