@@ -15,6 +15,13 @@ git clone https://github.com/philippejlyu/CSC302.git
 
 # Running
 Navigate to the root directory of the cloned repository locally (folder named `CSC302`) and execute the following command in your terminal to run the application in a browser window. The pip packages will be installed by this shell file in addition to running the application.
+
+## Windows
+```
+sh run.sh
+```
+
+## MacOS or Linux
 ```
 ./run.sh
 ```
