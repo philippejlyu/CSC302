@@ -9,7 +9,7 @@ def launch_datasette():
     os.system("datasette crime.db")
 def launch_browser():
     sleep(3)
-    webbrowser.open("http://localhost:8001/crime/locations")
+    webbrowser.open("http://127.0.0.1:80/crime/locations")
 
 Thread(target=launch_datasette).start()
 Thread(target=launch_browser).start()
