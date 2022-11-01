@@ -1,2 +1,6 @@
 
 .DS_Store
+
+crime_database/node_modules/
+
+crime_database/build/
