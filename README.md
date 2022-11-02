@@ -16,14 +16,14 @@ git clone https://github.com/philippejlyu/CSC302.git
 # Running
 Navigate to the root directory of the cloned repository locally (folder named `CSC302`) and execute the following command in your terminal to run the application in a browser window. The pip packages will be installed by this shell file in addition to running the webserver.
 
-Precondition: Docker must be installed on your computer
+Precondition: Docker must be installed on your computer. You may need to use sudo if you are running on Linux.
 
 ```
 docker build .
 docker run -p 3000:3000 <image SHA>
 ```
 
-The application can be found at localhost:3000
+The application can be found at `localhost:3000`
 
 # Testing
 To test the toy application, run the following command in your terminal from the root directory of the cloned repository:
