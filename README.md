@@ -16,7 +16,7 @@ git clone https://github.com/philippejlyu/CSC302.git
 # Running
 Navigate to the root directory of the cloned repository locally (folder named `CSC302`) and execute the following command in your terminal to run the application in a browser window. The pip packages will be installed by this shell file in addition to running the webserver.
 
-Precondition: Docker must be installed on your computer. You may need to use sudo if you are running on Linux.
+Precondition: Docker must be installed on your computer. You may need to use sudo if you are running on Linux. The Docker image will be at least 2GB in total, and 1493 npm packages are utilized. There are six high security vulnerabilities.
 
 ```
 docker build .
