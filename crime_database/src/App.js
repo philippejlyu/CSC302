@@ -2,10 +2,13 @@ import logo from './logo.svg';
 import './App.css';
 import './SideBar.js';
 import Dropdown from 'react-bootstrap/Dropdown';
+import './Map.js'
+import Map from './Map.js';
 
 function App() {
   return (
     <div className="App">
+      <Map />
       <div className="MapView">
       <Dropdown.Menu show>
                     <Dropdown.Header>My Datasets</Dropdown.Header>
