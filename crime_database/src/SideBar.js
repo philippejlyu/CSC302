@@ -19,6 +19,8 @@ import ListItemText from '@mui/material/ListItemText';
 import PublishIcon from '@mui/icons-material/Publish';
 import BarChartIcon from '@mui/icons-material/BarChart';
 import DatasetIcon from '@mui/icons-material/Dataset';
+import { Button } from '@mui/material';
+import axios from 'axios';
 
 const SideBar = () => {
     const drawerWidth = 275;
@@ -28,14 +30,22 @@ const SideBar = () => {
       let el = document.getElementById("navbar-comp");
       ReactDOM.findDOMNode(el).style.width = 'calc(100% - 275px)';
       ReactDOM.findDOMNode(el).style.marginLeft = drawerWidth;
+
+      let el2 = document.getElementById("main-page");
+      ReactDOM.findDOMNode(el2).style.width = 'calc(100% - 275px)';
+      ReactDOM.findDOMNode(el2).style.marginLeft = drawerWidth;
     };
     const closeDrawer = () => {
       setOpen(false);
       let el = document.getElementById("navbar-comp");
       ReactDOM.findDOMNode(el).style.width = 'calc(100%)';
       ReactDOM.findDOMNode(el).style.marginLeft = 0;
-    };
 
+      let el2 = document.getElementById("main-page");
+      ReactDOM.findDOMNode(el2).style.width = 'calc(100%)';
+      ReactDOM.findDOMNode(el2).style.marginLeft = 0;
+    };
+    
   const DrawerHeader = styled('div')(({ theme }) => ({
     display: 'flex',
     alignItems: 'center',
@@ -44,10 +54,21 @@ const SideBar = () => {
     justifyContent: 'flex-end',
   }));
 
+
+
+  function handleChange(event) {
+    let file = event.target.files[0];
+    const url = 'http://localhost:5000/upload';
+    const formData = new FormData();
+
+    formData.append("file", file);
+
+    axios.post(url, formData).then(res => console.log(res)).catch(err => console.warn(err));
+  }
     return (
         <Box sx={{ display: 'flex' }}>
       <CssBaseline />
-      <AppBar id="navbar-comp" position="fixed" open={open} backgroundColor='#3f51b5'>
+      <AppBar id="navbar-comp" position="fixed" open={open}>
         <Toolbar>
           <IconButton
             color="inherit"
@@ -110,7 +131,15 @@ const SideBar = () => {
         </List>
         <Divider />
       </Drawer>
+      <div id='main-page' open={open} style={{marginTop:'100px'}}>
+        <h1>Import Dataset</h1>
+      <Button variant="contained" component="label">
+        Upload
+        <input hidden accept=".csv" type="file" onChange={handleChange}/>
+      </Button>
+      </div>
       </Box>
     )
 }
+
 export default SideBar;
