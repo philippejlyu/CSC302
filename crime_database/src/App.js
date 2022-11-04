@@ -7,7 +7,7 @@ function App() {
   return (
     <div className="App">
       <div className="MapView">
-      <Dropdown.Menu show>
+        <Dropdown.Menu show>
                     <Dropdown.Header>My Datasets</Dropdown.Header>
                     <Dropdown.Item eventKey="2">Dataset A</Dropdown.Item>
                     <Dropdown.Item eventKey="3">Dataset B</Dropdown.Item>
