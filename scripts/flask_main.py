@@ -1,11 +1,24 @@
+from flask import Flask, request, send_from_directory
+from flask_cors import CORS, cross_origin
 import os
-from flask import Flask, send_from_directory
 import json
 
 # Debug:
 # app = Flask(__name__, static_folder='../crime_database/build')
 # Docker:
 app = Flask(__name__, static_folder='')
+cors = CORS(app)
+app.config['CORS_HEADERS'] = 'Content-Type'
+
+@app.route("/upload", methods=["POST"])
+@cross_origin()
+def create_database():
+    file = request.files['file']
+    filename = file.filename[:file.filename.index('.')]
+    file.save(file.filename)
+    os.system(f"sqlite-utils insert {filename}.db {filename} {file.filename} --csv -d")
+    os.remove(file.filename)
+    return "Successful"
 
 @app.route('/mapData', methods=['GET'])
 def getMapData():
@@ -26,4 +39,4 @@ def serve(path):
         return send_from_directory(app.static_folder, 'index.html')
     
 if __name__ == "__main__":
-    app.run(debug=True, host='0.0.0.0', port=3000)
+    app.run(debug=True, host='0.0.0.0', port=5000)
