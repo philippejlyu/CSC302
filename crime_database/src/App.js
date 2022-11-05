@@ -1,13 +1,19 @@
 import './App.css';
-import './SideBar.js';
 import React from 'react';
-import SideBar from './SideBar.js';
+import ImportData from './ImportData';
+import MyDatasets from './MyDatasets';
+import Visualize from './Visualize';
+import {BrowserRouter, Route, Routes} from "react-router-dom";
 
 function App() {
   return (
-      <React.Fragment>
-      <SideBar></SideBar>
-      </React.Fragment>
+      <BrowserRouter>
+        <Routes>
+        <Route path="/" element={<ImportData/>} />
+        <Route path="/datasets" element={<MyDatasets/>} />
+        <Route path="/visualize" element={<Visualize/>} />
+        </Routes>
+      </BrowserRouter>
   );
 }
 
