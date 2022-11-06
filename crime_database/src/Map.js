@@ -6,7 +6,6 @@ import 'leaflet/dist/leaflet.css';
 import icon from 'leaflet/dist/images/marker-icon.png';
 import iconShadow from 'leaflet/dist/images/marker-shadow.png';
 import React from 'react';
-import mapData from './local_data.json';
 
 let DefaultIcon = L.icon({
     iconUrl: icon,
@@ -20,25 +19,37 @@ class Map extends React.Component {
 
 
     componentDidMount() {
-        var locations = []
-        for (let i = 0; i < mapData.rows.length; i++) {
-            locations.push({
-                "lat": mapData.rows[i][146],
-                "lon": mapData.rows[i][147],
-                "cityname": mapData.rows[i][0],
-                "population": mapData.rows[i][4],
-                "populationDensity": mapData.rows[i][120],
-                "murders": mapData.rows[i][128],
-                "robberies": mapData.rows[i][132],
-                "assaults": mapData.rows[i][134],
-                "burglaries": mapData.rows[i][136],
-                "larcenies": mapData.rows[i][138],
-                "autoTheft": mapData.rows[i][140],
-                "arson": mapData.rows[i][142],
-            })
+
+        fetch('http://localhost:3000/mapData')
+        .then(function (res) {
+            console.log(res);
+            if (res.status === 200) {
+                return res.json()
+            }
+        })
+        .then(mapData => {
+            var locations = []
+            for (let i = 0; i < mapData.rows.length; i++) {
+                locations.push({
+                    "lat": mapData.rows[i][146],
+                    "lon": mapData.rows[i][147],
+                    "cityname": mapData.rows[i][0],
+                    "population": mapData.rows[i][4],
+                    "populationDensity": mapData.rows[i][120],
+                    "murders": mapData.rows[i][128],
+                    "robberies": mapData.rows[i][132],
+                    "assaults": mapData.rows[i][134],
+                    "burglaries": mapData.rows[i][136],
+                    "larcenies": mapData.rows[i][138],
+                    "autoTheft": mapData.rows[i][140],
+                    "arson": mapData.rows[i][142],
+                })
         }
-        console.log(mapData);
         this.setState({markers: locations});
+        })
+        .catch(error => {
+            console.log(error);
+        })
     }
 
     render () {
