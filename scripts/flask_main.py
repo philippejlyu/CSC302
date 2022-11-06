@@ -6,7 +6,7 @@ import json
 # Debug:
 # app = Flask(__name__, static_folder='../crime_database/build')
 # Docker:
-app = Flask(__name__, static_folder='')
+app = Flask(__name__, static_folder='build')
 cors = CORS(app)
 app.config['CORS_HEADERS'] = 'Content-Type'
 
@@ -24,8 +24,8 @@ def create_database():
 def getMapData():
     print(app.static_folder)
 
-    json_file_path = app.static_folder + '/src/local_data.json'
-
+    json_file_path = app.static_folder + '/../src/local_data.json'
+    # return send_from_directory(app.static_folder, '/src/local_data.json')
     with open(json_file_path, 'r') as j:
         contents = json.loads(j.read())
         return contents
@@ -39,4 +39,4 @@ def serve(path):
         return send_from_directory(app.static_folder, 'index.html')
     
 if __name__ == "__main__":
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    app.run(debug=True, host='0.0.0.0', port=3000)
