@@ -2,9 +2,9 @@
 FROM python:3.9-bullseye
 WORKDIR /usr/app
 RUN pip3 install Flask
+RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash -
 RUN apt-get update
 RUN apt-get install -y nodejs
-RUN apt-get install -y npm
 RUN pip install Flask-Cors
 COPY ./scripts .
 COPY ./data .
