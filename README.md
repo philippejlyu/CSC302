@@ -7,6 +7,9 @@ To find our scripts, please see the **scripts** folder<br />
 
 This application involves the **Python** language and the **datasette** and **sqlite-utils** packages. Please ensure you have **Python 3** and **Git** installed on your computer before proceeding.
 
+# Uploading new datasets
+Please ensure datasets that you upload are small in size. There is a **rate limit of 1 per second** for our geocoding api. Large datasets will take hours to process
+
 # Cloning
 Run the following command in your terminal to clone the repository.
 ```

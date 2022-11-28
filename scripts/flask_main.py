@@ -5,6 +5,7 @@ import json
 import re
 import requests
 import sqlite3
+from time import sleep
 
 # Debug:
 # app = Flask(__name__, static_folder='../crime_database/build')
@@ -49,7 +50,7 @@ def processDatabase(filename: str):
         
         # Now add spaces before capitals if necessary
         city = re.sub(r"(\w)([A-Z])", r"\1 \2", str(city))
-        print(city)
+        print("%s, %s", (city, state))
 
         # Get geojson
         params = {
@@ -70,21 +71,42 @@ def processDatabase(filename: str):
         long = data['lon']
         # lat = 40.6834349
         # long = 40.6834349
+        geographicalJson = []
         geojson = data['geojson']['coordinates'][0]
+        for i in range(len(geojson)):
+            if isinstance(geojson[i][0], list):
+                for j in range(len(geojson[i])):
+                    tmp_lat = geojson[i][j][0]
+                    tmp_lon = geojson[i][j][1]
+                    if tmp_lat > 0:
+                        geojson[i][0] = tmp_lat
+                        geojson[i][1] = tmp_lon
+                        geographicalJson.append([tmp_lat, tmp_lon])
+                    else:
+                        geographicalJson.append([tmp_lon, tmp_lat])
+            else:
+                tmp_lat = geojson[i][1]
+                tmp_lon = geojson[i][0]
+
+                if tmp_lat > 0:
+                    geographicalJson.append([tmp_lat, tmp_lon])
+                else:
+                    geographicalJson.append([tmp_lon, tmp_lat])
 
 
         # Put the sql commands in a queue because we processing them here causes issues with fetchone
-        cmdstr = "UPDATE locations SET communityName='%s', lat=%f, lon=%f, geojson='%s' WHERE rowid=%d" % (city, float(lat), float(long), str(geojson), rowid)
+        cmdstr = "UPDATE locations SET communityName='%s', lat=%f, lon=%f, geojson='%s' WHERE rowid=%d" % (city, float(lat), float(long), str(geographicalJson), rowid)
         commandQueue.append(cmdstr)
+        idx += 1
+        if idx >= 50:
+            break
 
         # This is here to prevent us from DOSsing the third party webserver
-        idx += 1
-        if idx >= 1:
-            break
+        sleep(1)
         row = res.fetchone()
 
     for command in commandQueue:
-        print(command)
+        # print(command)
         cur.execute(command)
     
     con.commit()
@@ -119,5 +141,5 @@ def serve(path):
         return send_from_directory(app.static_folder, 'index.html')
     
 if __name__ == "__main__":
-    # app.run(debug=True, host='0.0.0.0', port=3000)
-    processDatabase('./crime.db')
+    app.run(debug=True, host='0.0.0.0', port=3000)
+    # processDatabase('./crime.db')

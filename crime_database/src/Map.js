@@ -1,5 +1,5 @@
 import L from 'leaflet';
-import { MapContainer, TileLayer, useMap, Marker, Popup } from 'react-leaflet'
+import { MapContainer, TileLayer, useMap, Marker, Popup, Polygon } from 'react-leaflet'
 import './App.css'
 import 'leaflet/dist/leaflet.css';
 
@@ -29,20 +29,22 @@ class Map extends React.Component {
         })
         .then(mapData => {
             var locations = []
-            for (let i = 0; i < mapData.rows.length; i++) {
+            for (let i = 0; i < 50; i++) {
+                // console.log(mapData.rows[i][147])
                 locations.push({
-                    "lat": mapData.rows[i][146],
-                    "lon": mapData.rows[i][147],
-                    "cityname": mapData.rows[i][0],
-                    "population": mapData.rows[i][4],
-                    "populationDensity": mapData.rows[i][120],
-                    "murders": mapData.rows[i][128],
-                    "robberies": mapData.rows[i][132],
-                    "assaults": mapData.rows[i][134],
-                    "burglaries": mapData.rows[i][136],
-                    "larcenies": mapData.rows[i][138],
-                    "autoTheft": mapData.rows[i][140],
-                    "arson": mapData.rows[i][142],
+                    "lat": mapData.rows[i][148],
+                    "lon": mapData.rows[i][149],
+                    "cityname": mapData.rows[i][1],
+                    "population": mapData.rows[i][5],
+                    "populationDensity": mapData.rows[i][121],
+                    "murders": mapData.rows[i][129],
+                    "robberies": mapData.rows[i][133],
+                    "assaults": mapData.rows[i][135],
+                    "burglaries": mapData.rows[i][137],
+                    "larcenies": mapData.rows[i][139],
+                    "autoTheft": mapData.rows[i][141],
+                    "arson": mapData.rows[i][143],
+                    "boundingBox": mapData.rows[i][147]
                 })
         }
         this.setState({markers: locations});
@@ -61,21 +63,28 @@ class Map extends React.Component {
             />
             {this.state.markers.length > 0 && 
                 this.state.markers.map((location) => {
+                    const purpleOptions = { colour: 'purple' }
 
-                    return(<Marker position={[location.lat, location.lon]}>
+                    const polygon = JSON.parse(location.boundingBox);
+                    
+                    console.log(polygon)
+                    
+                    return(<Polygon pathOptions={purpleOptions} positions={polygon} key={location.cityname}>
                         <Popup>
-                        <center><b>{location.cityname}</b></center><br></br>
-                        Population: {location.population}<br></br>
-                        Population Density: {location.populationDensity}<br></br>
-                        Murders: {location.murders}<br></br>
-                        Robberies: {location.robberies}<br></br>
-                        Assaults: {location.assaults}<br></br>
-                        Burglaries: {location.burglaries}<br></br>
-                        Larcenies: {location.larcenies}<br></br>
-                        Auto Theft: {location.autoTheft}<br></br>
-                        Arsons: {location.arson}
-                        </Popup>
-                    </Marker>)
+                         <center><b>{location.cityname}</b></center><br></br>
+                         Population: {location.population}<br></br>
+                         Population Density: {location.populationDensity}<br></br>
+                         Murders: {location.murders}<br></br>
+                         Robberies: {location.robberies}<br></br>
+                         Assaults: {location.assaults}<br></br>
+                         Burglaries: {location.burglaries}<br></br>
+                         Larcenies: {location.larcenies}<br></br>
+                         Auto Theft: {location.autoTheft}<br></br>
+                         Arsons: {location.arson}
+                         </Popup>
+
+                    </Polygon>)
+                    
             })}
             
             </MapContainer>
