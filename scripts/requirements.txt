@@ -1,3 +1,4 @@
 datasette
 sqlite-utils
 Flask
+requests
