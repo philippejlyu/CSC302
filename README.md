@@ -1,4 +1,4 @@
-***Note:** The READDME has been modified as evidence for the evaluation of this sprint.*
+***Note:** The README has been modified as evidence for the evaluation of this sprint.*
 
 # Introduction
 
