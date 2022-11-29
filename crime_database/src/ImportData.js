@@ -7,11 +7,13 @@ import * as ReactDOM from 'react-dom';
 const ImportData = () => {
 
     function handleChange(event) {
-        let file = event.target.files[0];
+        let files = event.target.files;
         const url = 'http://localhost:5000/upload';
         const formData = new FormData();
     
-        formData.append("file", file);
+        for(let i = 0; i < files.length; i++){
+          formData.append('file'+(i+1), files[i]);
+        }
     
         axios.post(url, formData).then((res) => {
             console.log(res);
@@ -38,7 +40,7 @@ const ImportData = () => {
         <h3>Please upload a CSV file:</h3>
       <Button variant="contained" component="label">
         Upload
-        <input hidden accept=".csv" type="file" onChange={handleChange}/>
+        <input hidden multiple accept=".csv, .xlsx" type="file" onChange={handleChange}/>
       </Button>
       </div>
       </React.Fragment>
