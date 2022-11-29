@@ -130,7 +130,6 @@ def create_database():
 
 @app.route('/mapData', methods=['GET'])
 def getMapData():
-
     json_file_path = app.static_folder + '/../src/local_data.json'
     # return send_from_directory(app.static_folder, '/src/local_data.json')
     with open(json_file_path, 'r') as j:
@@ -146,5 +145,6 @@ def serve(path):
         return send_from_directory(app.static_folder, 'index.html')
     
 if __name__ == "__main__":
+    print("The App static folder is {0:s}".format(app.static_folder));
     app.run(debug=True, host='0.0.0.0', port=3000)
     # processDatabase('./crime.db')
