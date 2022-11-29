@@ -30,7 +30,7 @@ class Map extends React.Component {
         })
         .then(mapData => {
             var locations = []
-            for (let i = 0; i < 100; i++) {
+            for (let i = 0; i < 400; i++) {
                 // console.log(mapData.rows[i][147])
                 locations.push({
                     "lat": mapData.rows[i][148],
