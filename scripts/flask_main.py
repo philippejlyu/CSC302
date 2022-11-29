@@ -15,7 +15,7 @@ cors = CORS(app)
 app.config['CORS_HEADERS'] = 'Content-Type'
 
 def processDatabase(filename: str):
-    con = sqlite3.connect("crime.db")
+    con = sqlite3.connect(filename)
     cur = con.cursor()
     addColumn = "ALTER TABLE locations ADD COLUMN geojson BLOB"
     cur.execute(addColumn)
