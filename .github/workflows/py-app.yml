@@ -5,9 +5,9 @@ name: Python application
 
 on:
   push:
-    branches: [ "master", "dockerimage" ]
+    branches: [ "master", "a2", "a3", "a3*", "dockerimage" ]
   pull_request:
-    branches: [ "master", "dockerimage" ]
+    branches: [ "master", "a2", "a3", "a3*", "dockerimage" ]
 
 permissions:
   contents: read
