@@ -24,12 +24,13 @@ class Map extends React.Component {
         .then(function (res) {
             console.log(res);
             if (res.status === 200) {
+                console.log('res 200')
                 return res.json()
             }
         })
         .then(mapData => {
             var locations = []
-            for (let i = 0; i < 50; i++) {
+            for (let i = 0; i < 100; i++) {
                 // console.log(mapData.rows[i][147])
                 locations.push({
                     "lat": mapData.rows[i][148],
@@ -67,7 +68,7 @@ class Map extends React.Component {
 
                     const polygon = JSON.parse(location.boundingBox);
                     
-                    console.log(polygon)
+                    // console.log(polygon)
                     
                     return(<Polygon pathOptions={purpleOptions} positions={polygon} key={location.cityname}>
                         <Popup>

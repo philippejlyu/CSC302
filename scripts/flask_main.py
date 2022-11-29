@@ -50,7 +50,7 @@ def processDatabase(filename: str):
         
         # Now add spaces before capitals if necessary
         city = re.sub(r"(\w)([A-Z])", r"\1 \2", str(city))
-        print("%s, %s", (city, state))
+        print("%s, %s, %d", (city, state, idx))
 
         # Get geojson
         params = {
@@ -66,39 +66,44 @@ def processDatabase(filename: str):
 
         r = requests.get(requestURL, params=params)
         # Want to add the following to the data
-        data = r.json()[0]
-        lat = data['lat']
-        long = data['lon']
-        # lat = 40.6834349
-        # long = 40.6834349
-        geographicalJson = []
-        geojson = data['geojson']['coordinates'][0]
-        for i in range(len(geojson)):
-            if isinstance(geojson[i][0], list):
-                for j in range(len(geojson[i])):
-                    tmp_lat = geojson[i][j][0]
-                    tmp_lon = geojson[i][j][1]
-                    if tmp_lat > 0:
-                        geojson[i][0] = tmp_lat
-                        geojson[i][1] = tmp_lon
-                        geographicalJson.append([tmp_lat, tmp_lon])
+        
+        try:
+            data = r.json()[0]
+            lat = data['lat']
+            long = data['lon']
+            geographicalJson = []
+            geojson = data['geojson']['coordinates'][0]
+            if not isinstance(geojson, int):
+                for i in range(len(geojson)):
+                    if isinstance(geojson[i][0], list):
+                        for j in range(len(geojson[i])):
+                            tmp_lat = geojson[i][j][0]
+                            tmp_lon = geojson[i][j][1]
+                            if tmp_lat > 0:
+                                geojson[i][0] = tmp_lat
+                                geojson[i][1] = tmp_lon
+                                geographicalJson.append([tmp_lat, tmp_lon])
+                            else:
+                                geographicalJson.append([tmp_lon, tmp_lat])
                     else:
-                        geographicalJson.append([tmp_lon, tmp_lat])
-            else:
-                tmp_lat = geojson[i][1]
-                tmp_lon = geojson[i][0]
+                        tmp_lat = geojson[i][1]
+                        tmp_lon = geojson[i][0]
 
-                if tmp_lat > 0:
-                    geographicalJson.append([tmp_lat, tmp_lon])
-                else:
-                    geographicalJson.append([tmp_lon, tmp_lat])
+                        if tmp_lat > 0:
+                            geographicalJson.append([tmp_lat, tmp_lon])
+                        else:
+                            geographicalJson.append([tmp_lon, tmp_lat])
+        except Exception as e:
+            print(e)
+            print(i)
+
 
 
         # Put the sql commands in a queue because we processing them here causes issues with fetchone
         cmdstr = "UPDATE locations SET communityName='%s', lat=%f, lon=%f, geojson='%s' WHERE rowid=%d" % (city, float(lat), float(long), str(geographicalJson), rowid)
         commandQueue.append(cmdstr)
         idx += 1
-        if idx >= 50:
+        if idx >= 400:
             break
 
         # This is here to prevent us from DOSsing the third party webserver

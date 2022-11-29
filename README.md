@@ -10,6 +10,16 @@ This application involves the **Python** language and the **datasette** and **sq
 # Uploading new datasets
 Please ensure datasets that you upload are small in size. There is a **rate limit of 1 per second** for our geocoding api. Large datasets will take hours to process
 
+Data prerequisites
+community name is formatted as no spaces. Instead of spaces, have a capital letter denoting the space ending with the city type. For example, Los Angeles would be LosAngelescity 
+
+community name needs to be a valid city that can be searchable by open street map
+commuinty name needs to be a valid city with grographical boundaries regonzied by open street map
+
+**Temporary restrictions**
+City needs to be within the united states and have a state associated with it
+Territories such as Puerto Rico, Guam etc will not work
+
 # Cloning
 Run the following command in your terminal to clone the repository.
 ```
