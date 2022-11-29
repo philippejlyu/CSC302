@@ -103,7 +103,7 @@ def processDatabase(filename: str):
         cmdstr = "UPDATE locations SET communityName='%s', lat=%f, lon=%f, geojson='%s' WHERE rowid=%d" % (city, float(lat), float(long), str(geographicalJson), rowid)
         commandQueue.append(cmdstr)
         idx += 1
-        if idx >= 400:
+        if idx >= 10:
             break
 
         # This is here to prevent us from DOSsing the third party webserver
