@@ -15,22 +15,6 @@ const ImportData = () => {
     
         for(let i = 0; i < files.length; i++){
           formData.append('file'+(i+1), files[i]);
-          let el = document.getElementById("center-items");
-          let rowEl = document.createElement("div");
-          let fileEl = document.createElement("img");
-          let textEl = document.createElement("h4");
-          textEl.innerHTML = files[i].name;
-          if(files[i].name.endsWith(".csv")){
-            fileEl.src = CSVImg;
-          }
-          else{
-            fileEl.src = ExcelImg;
-          }
-          fileEl.style.alignSelf = "center";
-          rowEl.style.display = 'flex';
-          rowEl.style.marginTop = "5px";
-          rowEl.append(fileEl, textEl);
-          ReactDOM.findDOMNode(el).append(rowEl);
         }
         let el = document.getElementById("upload-button");
         let status = document.createElement("h4");
@@ -47,6 +31,24 @@ const ImportData = () => {
             let el = document.getElementById("status");
             el.innerHTML = 'Success!';
             el.style.color = 'green';
+            for(let i = 0; i < files.length; i++){
+              let el = document.getElementById("center-items");
+              let rowEl = document.createElement("div");
+              let fileEl = document.createElement("img");
+              let textEl = document.createElement("h4");
+              textEl.innerHTML = files[i].name;
+              if(files[i].name.endsWith(".csv")){
+                fileEl.src = CSVImg;
+              }
+              else{
+                fileEl.src = ExcelImg;
+              }
+              fileEl.style.alignSelf = "center";
+              rowEl.style.display = 'flex';
+              rowEl.style.marginTop = "5px";
+              rowEl.append(fileEl, textEl);
+              ReactDOM.findDOMNode(el).append(rowEl);
+            }
         }).catch((err) => {
             console.warn(err);
             let el = document.getElementById("status");
