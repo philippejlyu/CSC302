@@ -34,23 +34,24 @@ const ImportData = () => {
         }
         let el = document.getElementById("upload-button");
         let status = document.createElement("h4");
-        status.id = "status";
+        status.setAttribute("id", "status");
         status.innerHTML = "Uploading...";
-        ReactDOM.findDOMNode(el).after(status)
+        if(document.getElementById("status") == null){
+          ReactDOM.findDOMNode(el).after(status);
+        }
+        else{
+          ReactDOM.findDOMNode(document.getElementById("status")).replaceWith(status);
+        }
         axios.post(url, formData).then((res) => {
             console.log(res);
             let el = document.getElementById("status");
-            let newStatus = document.createElement("h4");
-            newStatus.innerHTML = 'Success!';
-            newStatus.style.color = 'green';
-            ReactDOM.findDOMNode(el).replaceWith(newStatus);
+            el.innerHTML = 'Success!';
+            el.style.color = 'green';
         }).catch((err) => {
             console.warn(err);
             let el = document.getElementById("status");
-            let newStatus = document.createElement("h4");
-            newStatus.innerHTML = 'Error! Please try again.';
-            newStatus.style.color = 'red';
-            ReactDOM.findDOMNode(el).replaceWith(newStatus);
+            el.innerHTML = 'Error! Please try again.';
+            el.style.color = 'red';
         });
       }
 
