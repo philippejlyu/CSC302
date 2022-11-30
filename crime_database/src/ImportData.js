@@ -60,7 +60,7 @@ const ImportData = () => {
     return(
         <React.Fragment>
         <SideBar></SideBar>
-        <div id='main-page' style={{marginTop:'75px', marginLeft: '300px', marginRight:'30px', borderStyle: 'dashed', borderRadius: '30px', height: '89vh'}}>
+        <div id='main-page' style={{marginTop:'75px', marginLeft: '300px', marginRight:'30px', borderStyle: 'dashed', borderRadius: '30px', minHeight: '89vh'}}>
           <div id='center-items' style={{display:'grid', placeItems:'center', marginTop: '175px'}}>
           <h1>Import Datasets</h1>
           <h3>Please upload spreadsheets:</h3>

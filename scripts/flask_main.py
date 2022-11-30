@@ -130,7 +130,7 @@ def create_database():
             excel_file = pd.read_excel(file.filename)
             excel_file.to_csv(filename + ".csv", index=None, header=True)
             os.remove(file.filename)
-        os.system(f"sqlite-utils insert {filename}.db {filename} {filename+'.csv'} --csv -d")
+        os.system(f"sqlite-utils insert \"{filename}.db\" \"{filename}\" \"{filename+'.csv'}\" --csv -d")
         os.remove(filename + '.csv')
     return "Successful"
 
