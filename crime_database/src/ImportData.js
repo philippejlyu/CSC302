@@ -32,11 +32,11 @@ const ImportData = () => {
           rowEl.append(fileEl, textEl);
           ReactDOM.findDOMNode(el).append(rowEl);
         }
-        let el = document.getElementById("center-items");
+        let el = document.getElementById("upload-button");
         let status = document.createElement("h4");
         status.id = "status";
         status.innerHTML = "Uploading...";
-        ReactDOM.findDOMNode(el).append(status)
+        ReactDOM.findDOMNode(el).after(status)
         axios.post(url, formData).then((res) => {
             console.log(res);
             let el = document.getElementById("status");
@@ -61,7 +61,7 @@ const ImportData = () => {
           <div id='center-items' style={{display:'grid', placeItems:'center', marginTop: '175px'}}>
           <h1>Import Datasets</h1>
           <h3>Please upload spreadsheets:</h3>
-          <Button variant="contained" component="label">
+          <Button id="upload-button" variant="contained" component="label">
             Upload
             <input hidden multiple accept=".csv, .xlsx" type="file" onChange={handleChange}/>
           </Button>
