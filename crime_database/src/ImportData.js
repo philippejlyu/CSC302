@@ -24,11 +24,18 @@ const ImportData = () => {
         if(event.type === "drop"){
           let el = document.getElementById('main-page');
           el.style.backgroundColor = 'White';
-          files = event.dataTransfer.files;
+          for(let i = 0; i < event.dataTransfer.files.length; i++){
+            let file = event.dataTransfer.files[i];
+            if(file.name.endsWith(".csv") || file.name.endsWith(".xlsx")){
+              files.push(file);
+            }
+          }
         }
         else if(event.type === "change"){
           files = event.target.files;
         }
+
+        if(files.length > 0){
         const url = 'http://localhost:5000/upload';
         const formData = new FormData();
     
@@ -45,6 +52,7 @@ const ImportData = () => {
         else{
           ReactDOM.findDOMNode(document.getElementById("status")).replaceWith(status);
         }
+        
         axios.post(url, formData).then((res) => {
             console.log(res);
             let el = document.getElementById("status");
@@ -75,6 +83,7 @@ const ImportData = () => {
             el.style.color = 'red';
         });
       }
+      }
 
     return(
         <React.Fragment>
@@ -83,7 +92,7 @@ const ImportData = () => {
           <div ></div>
           <div id='center-items' style={{display:'grid', placeItems:'center', marginTop: '175px'}}>
           <h1>Import Datasets</h1>
-          <h3>Please upload spreadsheets:</h3>
+          <h4>Please select or drag and drop spreadsheets:</h4>
           <Button id="upload-button" variant="contained" component="label">
             Upload
             <input hidden multiple accept=".csv, .xlsx" type="file" onChange={handleChange}/>
