@@ -8,8 +8,27 @@ import ExcelImg from './images/excel.png';
 
 const ImportData = () => {
 
+    function dragEnter(event){
+      event.preventDefault();
+      let el = document.getElementById('main-page');
+      el.style.backgroundColor = 'LightGray';
+    }
+    function dragExit(event){
+      event.preventDefault();
+      let el = document.getElementById('main-page');
+      el.style.backgroundColor = 'White';
+    }
     function handleChange(event) {
-        let files = event.target.files;
+      event.preventDefault();
+      var files = [];
+        if(event.type === "drop"){
+          let el = document.getElementById('main-page');
+          el.style.backgroundColor = 'White';
+          files = event.dataTransfer.files;
+        }
+        else if(event.type === "change"){
+          files = event.target.files;
+        }
         const url = 'http://localhost:5000/upload';
         const formData = new FormData();
     
@@ -60,7 +79,8 @@ const ImportData = () => {
     return(
         <React.Fragment>
         <SideBar></SideBar>
-        <div id='main-page' style={{marginTop:'75px', marginLeft: '300px', marginRight:'30px', borderStyle: 'dashed', borderRadius: '30px', minHeight: '89vh'}}>
+        <div id='main-page' style={{marginTop:'75px', marginLeft: '300px', marginRight:'30px', borderStyle: 'dashed', borderRadius: '30px', minHeight: '89vh'}} onDragOver={dragEnter} onDragLeave={dragExit} onDrop={handleChange}>
+          <div ></div>
           <div id='center-items' style={{display:'grid', placeItems:'center', marginTop: '175px'}}>
           <h1>Import Datasets</h1>
           <h3>Please upload spreadsheets:</h3>
