@@ -135,6 +135,7 @@ def create_database():
     return "Successful"
 
 @app.route('/mapData', methods=['GET'])
+@cross_origin()
 def getMapData():
     json_file_path = app.static_folder + '/../src/local_data.json'
     # return send_from_directory(app.static_folder, '/src/local_data.json')
@@ -144,6 +145,7 @@ def getMapData():
 
 @app.route('/', defaults={'path': ''})
 @app.route('/<path:path>')
+@cross_origin()
 def serve(path):
     if path != "" and os.path.exists(app.static_folder + '/' + path):
         return send_from_directory(app.static_folder, path)

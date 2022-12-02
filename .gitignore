@@ -4,3 +4,5 @@
 crime_database/node_modules/
 
 crime_database/build/
+
+package-lock.json
