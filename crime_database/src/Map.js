@@ -48,7 +48,8 @@ const Map = () => {
                         "larcenies": mapData.rows[i][138],
                         "autoTheft": mapData.rows[i][140],
                         "arson": mapData.rows[i][142],
-                        "boundingBox": mapData.rows[i][146]
+                        "boundingBox": mapData.rows[i][146],
+                        "id": "stateLevel" + i
                     })
                 }
                 setStateMarkers(stateLocations);
