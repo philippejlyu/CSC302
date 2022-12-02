@@ -60,24 +60,22 @@ const Map = () => {
 
         const map = useMapEvents({
         zoomend: () => {
-            if (map.getZoom() < 7 && zoomLevel >= 7) {
-                setShowStates(true);
-                console.log("toggle show states to true");
-            } else if (map.getZoom() >= 7 && zoomLevel < 7) {
-                setShowStates(false);
-                console.log("toggle show states to false");
-            }
-            zoomLevel = map.getZoom();
-            console.log(zoomLevel);
             if (stateMarkers == null) {
                 loadStateMarkers();
+            }
+            // Toggle when zoom crosses level 8
+            if (map.getZoom() < 8 && !showStates) {
+                setShowStates(true);
+            } else if (map.getZoom() >= 8 && showStates) {
+                setShowStates(false);
             }
         },
         })
         return null
       }
     React.useEffect(() => {
-        fetch('http://localhost:3000/mapData?datasetID=' + dataset)
+        const fetchURL = 'http://localhost:3000/mapData?datasetID=' + dataset;
+        fetch(fetchURL)
         .then(function(res) {
             if (res.status === 200) {
                 return res.json();
@@ -104,7 +102,6 @@ const Map = () => {
                     "id": i
                 })
             }
-            console.log('markers set')
             setMarkers(locations);
             setLoaded(true);
         });
@@ -117,13 +114,13 @@ const Map = () => {
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
+        {/* City data */}
         {loaded && !showStates && markers.length > 0 && 
             markers.map((location) => {
                 const purpleOptions = { colour: 'purple' }
 
                 const polygon = JSON.parse(location.boundingBox);
                 
-                // console.log(polygon)
                 
                 return(<Polygon pathOptions={purpleOptions} positions={polygon} key={location.id}>
                     <Popup>
@@ -142,16 +139,13 @@ const Map = () => {
                 </Polygon>)
                 
         })}
-
+        {/* State data */}
         {loaded && showStates && stateMarkers.length > 0 && 
             stateMarkers.map((location) => {
-                console.log('state markers set');
                 const purpleOptions = { colour: 'purple' }
-                // console.log(location)
                 const polygon = JSON.parse(location.boundingBox);
-                
-                // console.log(polygon)
-                
+
+                                
                 return(<Polygon pathOptions={purpleOptions} positions={polygon} key={location.id}>
                     <Popup>
                      <center><b>{location.cityname}</b></center><br></br>
@@ -165,11 +159,8 @@ const Map = () => {
                      Auto Theft: {location.autoTheft}<br></br>
                      Arsons: {location.arson}
                      </Popup>
-
                 </Polygon>)
-                
         })}
-        
         </MapContainer>
       );
 }
