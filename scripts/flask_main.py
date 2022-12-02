@@ -10,11 +10,11 @@ from typing import *
 import pandas as pd
 
 # Debug:
-app = Flask(__name__, static_folder='')
+# app = Flask(__name__, static_folder='')
 # Docker:
-# app = Flask(__name__, static_folder='build')
+app = Flask(__name__, static_folder='build')
 cors = CORS(app)
-app.config['CORS_HEADERS'] = 'Content-Type'
+# app.config['CORS_HEADERS'] = 'Content-Type'
 
 def generateStateData(filename: str):
     con = sqlite3.connect(filename)
