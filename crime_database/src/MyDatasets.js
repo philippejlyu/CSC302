@@ -7,9 +7,21 @@ class DatasetRow extends React.Component {
     const city = this.props.city;
     return (
       <tr>
-        <td>
-          {city}
-        </td>
+        <td style={{border:"1px solid black"}}>{city[1]}</td>
+        <td style={{border:"1px solid black"}}>{city[3]}</td>
+        <td style={{border:"1px solid black"}}>{city[2]}</td>
+        <td style={{border:"1px solid black"}}>{city[5]}</td>
+        <td style={{border:"1px solid black"}}>{city[6]}</td>
+        <td style={{border:"1px solid black"}}>{city[129]}</td>
+        <td style={{border:"1px solid black"}}>{city[131]}</td>
+        <td style={{border:"1px solid black"}}>{city[133]}</td>
+        <td style={{border:"1px solid black"}}>{city[135]}</td>
+        <td style={{border:"1px solid black"}}>{city[137]}</td>
+        <td style={{border:"1px solid black"}}>{city[139]}</td>
+        <td style={{border:"1px solid black"}}>{city[141]}</td>
+        <td style={{border:"1px solid black"}}>{city[143]}</td>
+        <td style={{border:"1px solid black"}}>{city[145]}</td>
+        <td style={{border:"1px solid black"}}>{city[136]}</td>
       </tr>
     )
   }
@@ -32,7 +44,7 @@ const MyDatasets = () => {
         if (!k%100) {
           console.info(mapData.rows[k]);
         }
-        rows.push(<DatasetRow city={mapData.rows[k][1]}/>)
+        rows.push(<DatasetRow city={mapData.rows[k]}/>)
       }
     })
     .catch(error => {
@@ -49,7 +61,20 @@ const MyDatasets = () => {
           <thead>
             <tr>
               <th>City</th>
-              <th>Price</th>
+              <th>County</th>
+              <th>City</th>
+              <th>Population</th>
+              <th>HouseholdSize</th>
+              <th>Murders</th>
+              <th>Rapes</th>
+              <th>Robberies</th>
+              <th>Assaults</th>
+              <th>Burglaries</th>
+              <th>Larcenies</th>
+              <th>AutoThefts</th>
+              <th>Arsons</th>
+              <th>Violent Crime Rate</th>
+              <th>Others Crime Rate</th>
             </tr>
           </thead>
           <tbody>{rows}</tbody>
