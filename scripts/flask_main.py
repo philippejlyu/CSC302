@@ -106,27 +106,29 @@ def getGeoJSON(city: str, state: str) -> List:
         lat = data['lat']
         long = data['lon']
         geographicalJson = []
-        geojson = data['geojson']['coordinates'][0]
-        if not isinstance(geojson, int):
-            for i in range(len(geojson)):
-                if isinstance(geojson[i][0], list):
-                    for j in range(len(geojson[i])):
-                        tmp_lat = geojson[i][j][0]
-                        tmp_lon = geojson[i][j][1]
-                        if tmp_lat > 0:
-                            geojson[i][0] = tmp_lat
-                            geojson[i][1] = tmp_lon
-                            geographicalJson.append([tmp_lat, tmp_lon])
-                        else:
-                            geographicalJson.append([tmp_lon, tmp_lat])
-                else:
-                    tmp_lat = geojson[i][1]
-                    tmp_lon = geojson[i][0]
 
+        if data['geojson']['type'] == 'Polygon':
+            geojson = data['geojson']['coordinates'][0]
+            for i in range(len(geojson)):
+                tmp_lat = geojson[i][1]
+                tmp_lon = geojson[i][0]
+
+                if tmp_lat > 0:
+                    geographicalJson.append([tmp_lat, tmp_lon])
+                else:
+                    geographicalJson.append([tmp_lon, tmp_lat])
+
+        elif data['geojson']['type'] == 'MultiPolygon':
+            for polygon in data['geojson']['coordinates']:
+                polygon_arr = []
+                for i in range(len(polygon[0])):
+                    tmp_lat = polygon[0][i][1]
+                    tmp_lon = polygon[0][i][0]
                     if tmp_lat > 0:
-                        geographicalJson.append([tmp_lat, tmp_lon])
+                        polygon_arr.append([tmp_lat, tmp_lon])
                     else:
-                        geographicalJson.append([tmp_lon, tmp_lat])
+                        polygon_arr.append([tmp_lon, tmp_lat])
+                geographicalJson.append(polygon_arr)
         return geographicalJson
     except Exception as e:
         print(e)
@@ -250,5 +252,6 @@ def serve(path):
 if __name__ == "__main__":
     print("The App static folder is {0:s}".format(app.static_folder));
     app.run(debug=True, host='0.0.0.0', port=3000)
+    # print(getGeoJSON("", "TX"))
     # processDatabase('./crime.db')
     # generateStateData('./crime.db')
