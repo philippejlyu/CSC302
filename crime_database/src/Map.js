@@ -19,15 +19,58 @@ const Map = () => {
     const [loaded, setLoaded] = useState(false);
     const [markers, setMarkers] = useState(null);
     const [stateMarkers, setStateMarkers] = useState(null);
+    const [showStates, setShowStates] = useState(false);
     // TODO: Mack will pass in dataset name here as a prop
     const dataset = "crime.db";
     var zoomLevel = 10;
 
     const MapControllerComponent = () => {
+
+        const loadStateMarkers = () => {
+            fetch('http://localhost:3000/mapData?stateLevel&datasetID=' + dataset)
+            .then(function(res) {
+                if (res.status === 200) {
+                    return res.json();
+                }
+            }).then(mapData => {
+                var stateLocations = []
+                for (var i = 0; i < mapData.rows.length; i++) {
+                    stateLocations.push({
+                        "lat": mapData.rows[i][147],
+                        "lon": mapData.rows[i][148],
+                        "cityname": mapData.rows[i][0],
+                        "population": mapData.rows[i][4],
+                        "populationDensity": mapData.rows[i][120],
+                        "murders": mapData.rows[i][128],
+                        "robberies": mapData.rows[i][132],
+                        "assaults": mapData.rows[i][134],
+                        "burglaries": mapData.rows[i][136],
+                        "larcenies": mapData.rows[i][138],
+                        "autoTheft": mapData.rows[i][140],
+                        "arson": mapData.rows[i][142],
+                        "boundingBox": mapData.rows[i][146]
+                    })
+                }
+                setStateMarkers(stateLocations);
+                // setLoaded(true);
+            });
+        }
+
+
         const map = useMapEvents({
         zoomend: () => {
+            if (map.getZoom() < 7 && zoomLevel >= 7) {
+                setShowStates(true);
+                console.log("toggle show states to true");
+            } else if (map.getZoom() >= 7 && zoomLevel < 7) {
+                setShowStates(false);
+                console.log("toggle show states to false");
+            }
             zoomLevel = map.getZoom();
             console.log(zoomLevel);
+            if (stateMarkers == null) {
+                loadStateMarkers();
+            }
         },
         })
         return null
@@ -56,41 +99,14 @@ const Map = () => {
                     "larcenies": mapData.rows[i][138],
                     "autoTheft": mapData.rows[i][140],
                     "arson": mapData.rows[i][142],
-                    "boundingBox": mapData.rows[i][146]
+                    "boundingBox": mapData.rows[i][146],
+                    "id": i
                 })
             }
             console.log('markers set')
             setMarkers(locations);
             setLoaded(true);
         });
-
-        // fetch('http://localhost:3000/mapData?stateLevel&datasetID=' + dataset)
-        // .then(function(res) {
-        //     if (res.status === 200) {
-        //         return res.json();
-        //     }
-        // }).then(mapData => {
-        //     var locations = []
-        //     for (var i = 0; i < mapData.rows.length; i++) {
-        //         locations.push({
-        //             "lat": mapData.rows[i][148],
-        //             "lon": mapData.rows[i][149],
-        //             "cityname": mapData.rows[i][1],
-        //             "population": mapData.rows[i][5],
-        //             "populationDensity": mapData.rows[i][121],
-        //             "murders": mapData.rows[i][129],
-        //             "robberies": mapData.rows[i][133],
-        //             "assaults": mapData.rows[i][135],
-        //             "burglaries": mapData.rows[i][137],
-        //             "larcenies": mapData.rows[i][139],
-        //             "autoTheft": mapData.rows[i][141],
-        //             "arson": mapData.rows[i][143],
-        //             "boundingBox": mapData.rows[i][147]
-        //         })
-        //     }
-        //     setStateMarkers(locations);
-        //     setLoaded(true);
-        // });
     }, []);
 
     return (
@@ -100,7 +116,7 @@ const Map = () => {
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
-        {loaded && markers.length > 0 && 
+        {loaded && !showStates && markers.length > 0 && 
             markers.map((location) => {
                 const purpleOptions = { colour: 'purple' }
 
@@ -108,7 +124,34 @@ const Map = () => {
                 
                 // console.log(polygon)
                 
-                return(<Polygon pathOptions={purpleOptions} positions={polygon} key={location.cityname} className="statePolygon">
+                return(<Polygon pathOptions={purpleOptions} positions={polygon} key={location.id}>
+                    <Popup>
+                     <center><b>{location.cityname}</b></center><br></br>
+                     Population: {location.population}<br></br>
+                     Population Density: {location.populationDensity}<br></br>
+                     Murders: {location.murders}<br></br>
+                     Robberies: {location.robberies}<br></br>
+                     Assaults: {location.assaults}<br></br>
+                     Burglaries: {location.burglaries}<br></br>
+                     Larcenies: {location.larcenies}<br></br>
+                     Auto Theft: {location.autoTheft}<br></br>
+                     Arsons: {location.arson}
+                     </Popup>
+
+                </Polygon>)
+                
+        })}
+
+        {loaded && showStates && stateMarkers.length > 0 && 
+            stateMarkers.map((location) => {
+                console.log('state markers set');
+                const purpleOptions = { colour: 'purple' }
+                // console.log(location)
+                const polygon = JSON.parse(location.boundingBox);
+                
+                // console.log(polygon)
+                
+                return(<Polygon pathOptions={purpleOptions} positions={polygon} key={location.id}>
                     <Popup>
                      <center><b>{location.cityname}</b></center><br></br>
                      Population: {location.population}<br></br>
