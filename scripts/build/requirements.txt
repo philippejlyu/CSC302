@@ -2,3 +2,5 @@ datasette
 sqlite-utils
 Flask
 requests
+pandas
+openpyxl
