@@ -1,4 +1,4 @@
-from flask import Flask, request, send_from_directory
+from flask import Flask, request, send_from_directory, jsonify, Response
 from flask_cors import CORS, cross_origin
 import os
 import json
@@ -208,14 +208,29 @@ def create_database():
 @app.route('/mapData', methods=['GET'])
 def getMapData():
 
-    # Docker
-    # json_file_path = app.static_folder + '/../src/local_data.json'
-    # Debug
-    json_file_path = app.static_folder + '../crime_database/src/local_data.json'
-    # return send_from_directory(app.static_folder, '/src/local_data.json')
-    with open(json_file_path, 'r') as j:
-        contents = json.loads(j.read())
-        return contents
+    # Parse parameters
+    params = request.args
+    if 'datasetID' in params:
+        datset = params['datasetID']
+        # Get sql data
+        con = sqlite3.connect(datset)
+        cur = con.cursor()
+        if 'stateLevel' in params:
+            res = cur.execute("SELECT * FROM locations WHERE isState=TRUE")
+        else:
+            res = cur.execute("SELECT * FROM locations WHERE isState=FALSE")
+        row = res.fetchone()
+        data = []
+        while row is not None:
+            data.append(row)
+            row = res.fetchone()
+        con.close()
+
+        return jsonify({"rows": data})
+    else:
+        return Response(status=400)
+        # Log this
+
 
 @app.route('/', defaults={'path': ''})
 @app.route('/<path:path>')
@@ -226,6 +241,6 @@ def serve(path):
         return send_from_directory(app.static_folder, 'index.html')
     
 if __name__ == "__main__":
-    # app.run(debug=True, host='0.0.0.0', port=3000)
+    app.run(debug=True, host='0.0.0.0', port=3000)
     # processDatabase('./crime.db')
-    generateStateData('./crime.db')
+    # generateStateData('./crime.db')
