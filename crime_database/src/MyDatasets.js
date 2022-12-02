@@ -31,7 +31,7 @@ class DatasetRow extends React.Component {
 const rows = [];
 const MyDatasets = () => {
 
-  fetch('http://localhost:5000/mapData')
+  fetch('http://localhost:3000/mapData')
     .then(function (res) {
       console.log(res);
       if (res.status === 200) {

@@ -6,3 +6,6 @@ crime_database/node_modules/
 crime_database/build/
 
 package-lock.json
+
+data/.~lock.crimedata.csv
+data/crimedata.csv
