@@ -60,17 +60,14 @@ const Map = () => {
 
         const map = useMapEvents({
         zoomend: () => {
-            if (map.getZoom() < 7 && zoomLevel >= 7) {
-                setShowStates(true);
-                console.log("toggle show states to true");
-            } else if (map.getZoom() >= 7 && zoomLevel < 7) {
-                setShowStates(false);
-                console.log("toggle show states to false");
-            }
-            zoomLevel = map.getZoom();
-            console.log(zoomLevel);
             if (stateMarkers == null) {
                 loadStateMarkers();
+            }
+            // Toggle when zoom crosses level 8
+            if (map.getZoom() < 8 && !showStates) {
+                setShowStates(true);
+            } else if (map.getZoom() >= 8 && showStates) {
+                setShowStates(false);
             }
         },
         })
@@ -81,7 +78,6 @@ const Map = () => {
         fetch(fetchURL)
         .then(function(res) {
             if (res.status === 200) {
-                console.log(res)
                 return res.json();
             }
         }).then(mapData => {
@@ -118,13 +114,13 @@ const Map = () => {
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
+        {/* City data */}
         {loaded && !showStates && markers.length > 0 && 
             markers.map((location) => {
                 const purpleOptions = { colour: 'purple' }
 
                 const polygon = JSON.parse(location.boundingBox);
                 
-                // console.log(polygon)
                 
                 return(<Polygon pathOptions={purpleOptions} positions={polygon} key={location.id}>
                     <Popup>
@@ -143,7 +139,7 @@ const Map = () => {
                 </Polygon>)
                 
         })}
-
+        {/* State data */}
         {loaded && showStates && stateMarkers.length > 0 && 
             stateMarkers.map((location) => {
                 const purpleOptions = { colour: 'purple' }
@@ -163,11 +159,8 @@ const Map = () => {
                      Auto Theft: {location.autoTheft}<br></br>
                      Arsons: {location.arson}
                      </Popup>
-
                 </Polygon>)
-                
         })}
-        
         </MapContainer>
       );
 }
