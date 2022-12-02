@@ -7,6 +7,12 @@ To find our scripts, please see the **scripts** folder<br />
 
 This application involves the **Python** language and the **datasette** and **sqlite-utils** packages. Please ensure you have **Python 3** and **Git** installed on your computer before proceeding.
 
+## Structure
+
+The application constitutes a **front end**, which is a React app, found in the `crime-database` folder, and a **back end**, which is simply a Python Flask application found in `scripts`.
+
+To run the application correctly, the front end must be run first, before the back end.
+
 # Uploading new datasets
 Please ensure datasets that you upload are small in size. There is a **rate limit of 1 per second** for our geocoding api. Large datasets will take hours to process
 
@@ -26,7 +32,7 @@ Run the following command in your terminal to clone the repository.
 git clone https://github.com/philippejlyu/CSC302.git
 ```
 
-# Running
+# Running on Docker
 Navigate to the root directory of the cloned repository locally (folder named `CSC302`) and execute the following command in your terminal to run the application in a browser window. The pip packages will be installed by this shell file in addition to running the webserver.
 
 Precondition: Docker must be installed on your computer. You may need to use sudo if you are running on Linux. The Docker image will be at least 2GB in total, and 1493 npm packages are utilized. There are six high security vulnerabilities.

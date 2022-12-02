@@ -213,8 +213,8 @@ def create_database():
     return "Successful"
 
 @app.route('/mapData', methods=['GET'])
+@cross_origin()
 def getMapData():
-
     # Parse parameters
     params = request.args
     if 'datasetID' in params:
@@ -238,9 +238,9 @@ def getMapData():
         return Response(status=400)
         # Log this
 
-
 @app.route('/', defaults={'path': ''})
 @app.route('/<path:path>')
+@cross_origin()
 def serve(path):
     if path != "" and os.path.exists(app.static_folder + '/' + path):
         return send_from_directory(app.static_folder, path)
@@ -248,6 +248,7 @@ def serve(path):
         return send_from_directory(app.static_folder, 'index.html')
     
 if __name__ == "__main__":
+    print("The App static folder is {0:s}".format(app.static_folder));
     app.run(debug=True, host='0.0.0.0', port=3000)
     # processDatabase('./crime.db')
     # generateStateData('./crime.db')
