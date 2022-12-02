@@ -1,5 +1,6 @@
 import React from "react";
 import SideBar from "./SideBar";
+import Button from "@mui/material/Button";
 import * as ReactDOM from 'react-dom';
 
 class DatasetRow extends React.Component {
@@ -7,21 +8,21 @@ class DatasetRow extends React.Component {
     const city = this.props.city;
     return (
       <tr>
-        <td style={{border:"1px solid black"}}>{city[1]}</td>
-        <td style={{border:"1px solid black"}}>{city[3]}</td>
+        <td style={{border:"1px solid black"}}>{city[0]}</td>
         <td style={{border:"1px solid black"}}>{city[2]}</td>
+        <td style={{border:"1px solid black"}}>{city[1]}</td>
+        <td style={{border:"1px solid black"}}>{city[4]}</td>
         <td style={{border:"1px solid black"}}>{city[5]}</td>
-        <td style={{border:"1px solid black"}}>{city[6]}</td>
-        <td style={{border:"1px solid black"}}>{city[129]}</td>
-        <td style={{border:"1px solid black"}}>{city[131]}</td>
-        <td style={{border:"1px solid black"}}>{city[133]}</td>
-        <td style={{border:"1px solid black"}}>{city[135]}</td>
-        <td style={{border:"1px solid black"}}>{city[137]}</td>
-        <td style={{border:"1px solid black"}}>{city[139]}</td>
-        <td style={{border:"1px solid black"}}>{city[141]}</td>
-        <td style={{border:"1px solid black"}}>{city[143]}</td>
-        <td style={{border:"1px solid black"}}>{city[145]}</td>
+        <td style={{border:"1px solid black"}}>{city[128]}</td>
+        <td style={{border:"1px solid black"}}>{city[130]}</td>
+        <td style={{border:"1px solid black"}}>{city[132]}</td>
+        <td style={{border:"1px solid black"}}>{city[134]}</td>
         <td style={{border:"1px solid black"}}>{city[136]}</td>
+        <td style={{border:"1px solid black"}}>{city[138]}</td>
+        <td style={{border:"1px solid black"}}>{city[140]}</td>
+        <td style={{border:"1px solid black"}}>{city[142]}</td>
+        <td style={{border:"1px solid black"}}>{city[144]}</td>
+        <td style={{border:"1px solid black"}}>{city[145]}</td>
       </tr>
     )
   }
@@ -57,6 +58,7 @@ const MyDatasets = () => {
       <div id='main-page' style={{ marginTop: '75px', marginLeft: '300px' }}>
         <h1>My Datasets</h1>
         <div id='dataset-page'></div>
+        <Button onClick={() => console.info("ZOMFG")}>Number of Results</Button>
         <table>
           <thead>
             <tr>
