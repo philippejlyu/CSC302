@@ -132,8 +132,7 @@ def getGeoJSON(city: str, state: str) -> List:
         return geographicalJson
     except Exception as e:
         print(e)
-        print(i)
-        return []
+        return [] 
 
 def processDatabase(filename: str):
     con = sqlite3.connect(filename)
@@ -144,7 +143,7 @@ def processDatabase(filename: str):
     # cur.execute(addColumn)
     addColumn = "ALTER TABLE locations ADD COLUMN lon FLOAT"
     # cur.execute(addColumn)
-    res = cur.execute("SELECT rowid, communityName, state FROM locations WHERE rowid > 2000")
+    res = cur.execute("SELECT rowid, communityName, state FROM locations")
 
     commandQueue = []
     idx = 0
@@ -170,6 +169,8 @@ def processDatabase(filename: str):
             city = dirtyCityName.replace("division", "")
         elif 'district' in dirtyCityName:
             city = dirtyCityName.replace("district", "")
+        else:
+            city = dirtyCityName
         
         # Now add spaces before capitals if necessary
         city = re.sub(r"(\w)([A-Z])", r"\1 \2", str(city))
@@ -177,13 +178,13 @@ def processDatabase(filename: str):
 
         geographicalJson = getGeoJSON(city, state)
 
-
+        print(city)
 
         # Put the sql commands in a queue because we processing them here causes issues with fetchone
-        cmdstr = "UPDATE locations SET communityName='%s', lat=%f, lon=%f, geojson='%s' WHERE rowid=%d" % (city, float(lat), float(long), str(geographicalJson), rowid)
+        cmdstr = "UPDATE locations SET communityName='%s', geojson='%s' WHERE rowid=%d" % (city, str(geographicalJson), rowid)
         commandQueue.append(cmdstr)
         idx += 1
-        if idx >= 300:
+        if idx >= 10:
             break
 
         # This is here to prevent us from DOSsing the third party webserver
