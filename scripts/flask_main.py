@@ -7,6 +7,7 @@ import requests
 import sqlite3
 from time import sleep
 from typing import *
+import pandas as pd
 
 # Debug:
 app = Flask(__name__, static_folder='')
@@ -198,11 +199,17 @@ def processDatabase(filename: str):
 @app.route("/upload", methods=["POST"])
 @cross_origin()
 def create_database():
-    file = request.files['file']
-    filename = file.filename[:file.filename.index('.')]
-    file.save(file.filename)
-    os.system(f"sqlite-utils insert {filename}.db {filename} {file.filename} --csv -d")
-    os.remove(file.filename)
+    files = list(request.files.keys())
+    for file_key in files: 
+        file = request.files[file_key]
+        file.save(file.filename)
+        filename = file.filename[:file.filename.index('.')]
+        if file.filename.endswith('.xlsx'):
+            excel_file = pd.read_excel(file.filename)
+            excel_file.to_csv(filename + ".csv", index=None, header=True)
+            os.remove(file.filename)
+        os.system(f"sqlite-utils insert \"{filename}.db\" \"{filename}\" \"{filename+'.csv'}\" --csv -d")
+        os.remove(filename + '.csv')
     return "Successful"
 
 @app.route('/mapData', methods=['GET'])
