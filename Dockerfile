@@ -6,9 +6,9 @@ RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash -
 RUN apt-get update
 RUN apt-get install -y nodejs
 RUN pip install Flask-Cors
-COPY ./scripts .
+COPY ./crimetrack-back .
 COPY ./data .
-COPY crime_database .
+COPY crimetrack-front .
 RUN npm install
 RUN npm run build
 RUN pip3 install -r ./requirements.txt
