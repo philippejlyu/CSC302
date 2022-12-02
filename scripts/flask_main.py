@@ -218,6 +218,7 @@ def create_database():
 @cross_origin()
 def getMapData():
     # Parse parameters
+    print("Recieved request", request)
     params = request.args
     if 'datasetID' in params:
         datset = params['datasetID']

@@ -77,9 +77,11 @@ const Map = () => {
         return null
       }
     React.useEffect(() => {
-        fetch('http://localhost:3000/mapData?datasetID=' + dataset)
+        const fetchURL = 'http://localhost:3000/mapData?datasetID=' + dataset;
+        fetch(fetchURL)
         .then(function(res) {
             if (res.status === 200) {
+                console.log(res)
                 return res.json();
             }
         }).then(mapData => {
@@ -104,7 +106,6 @@ const Map = () => {
                     "id": i
                 })
             }
-            console.log('markers set')
             setMarkers(locations);
             setLoaded(true);
         });
@@ -145,13 +146,10 @@ const Map = () => {
 
         {loaded && showStates && stateMarkers.length > 0 && 
             stateMarkers.map((location) => {
-                console.log('state markers set');
                 const purpleOptions = { colour: 'purple' }
-                // console.log(location)
                 const polygon = JSON.parse(location.boundingBox);
-                
-                // console.log(polygon)
-                
+
+                                
                 return(<Polygon pathOptions={purpleOptions} positions={polygon} key={location.id}>
                     <Popup>
                      <center><b>{location.cityname}</b></center><br></br>
