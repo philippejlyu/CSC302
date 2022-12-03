@@ -36,7 +36,7 @@ const ImportData = () => {
         }
 
         if(files.length > 0){
-        const url = 'http://localhost:5000/upload';
+        const url = 'http://localhost:3000/upload';
         const formData = new FormData();
     
         for(let i = 0; i < files.length; i++){
@@ -93,7 +93,7 @@ const ImportData = () => {
           <div id='center-items' style={{display:'grid', placeItems:'center', marginTop: '175px'}}>
           <h1>Import Datasets</h1>
           <h4>Please select or drag and drop spreadsheets:</h4>
-          <Button id="upload-button" variant="contained" component="label">
+          <Button sx={{bgcolor:'#673ab7'}}id="upload-button" variant="contained" component="label">
             Upload
             <input hidden multiple accept=".csv, .xlsx" type="file" onChange={handleChange}/>
           </Button>

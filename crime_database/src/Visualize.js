@@ -6,8 +6,7 @@ const Visualize = () => {
   return (
     <React.Fragment>
       <SideBar></SideBar>
-      <div id='main-page' style={{ marginTop: '75px', marginLeft: '300px' }}>
-        <h1>Visualize</h1>
+      <div id='main-page' style={{ marginTop: '65px', marginLeft: '275px' }}>
         <Map></Map>
       </div>
     </React.Fragment>
