@@ -22,7 +22,7 @@ const SideBar = () => {
     return (
       <React.Fragment>
       <CssBaseline />
-      <AppBar position="fixed" sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
+      <AppBar position="fixed" sx={{ boxShadow: 3, bgcolor:'#673ab7', zIndex: (theme) => theme.zIndex.drawer + 1 }}>
         <Toolbar>
           <Typography variant="h5" noWrap component="div">
             Visualyze
@@ -34,10 +34,10 @@ const SideBar = () => {
        sx={{
          width: drawerWidth,
          flexShrink: 0,
-         [`& .MuiDrawer-paper`]: { width: drawerWidth, boxSizing: 'border-box' },
+         [`& .MuiDrawer-paper`]: { width: drawerWidth, boxSizing: 'border-box',bgcolor:'white', boxShadow: 3 },
        }}
       >
-        <Toolbar />
+        <Toolbar/>
         <List>
             <ListItem disablePadding>
               <ListItemButton component={Link} to="/">

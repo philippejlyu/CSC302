@@ -108,7 +108,7 @@ const Map = () => {
     }, []);
 
     return (
-        <MapContainer center={[40.762730914502896, -73.97376139655083]} zoom={10} scrollWheelZoom={false}>
+        <MapContainer center={[40.762730914502896, -73.97376139655083]} zoom={10} scrollWheelZoom={true}>
             <MapControllerComponent />
         <TileLayer
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -117,7 +117,20 @@ const Map = () => {
         {/* City data */}
         {loaded && !showStates && markers.length > 0 && 
             markers.map((location) => {
-                const purpleOptions = { colour: 'purple' }
+                let violentPerPop = (location.murders + location.assaults)/location.population;
+                var purpleOptions = {}
+                if(violentPerPop < 0.003){
+                    purpleOptions = { fillColor: 'green', color:'green' }
+                }
+                else if(violentPerPop >= 0.003 && violentPerPop < 0.005){
+                    purpleOptions = { fillColor: 'yellow', color: '#fcdb03'}
+                }
+                else if(violentPerPop >= 0.005 && violentPerPop < 0.007){
+                    purpleOptions = { fillColor: 'orange', color: 'orange' }
+                }
+                else if(violentPerPop >= 0.007){
+                    purpleOptions = { fillColor: 'red', color: 'red' }
+                }
 
                 const polygon = JSON.parse(location.boundingBox);
                 
@@ -142,9 +155,21 @@ const Map = () => {
         {/* State data */}
         {loaded && showStates && stateMarkers.length > 0 && 
             stateMarkers.map((location) => {
-                const purpleOptions = { colour: 'purple' }
+                let violentPerPop = (location.murders + location.assaults)/location.population;
+                var purpleOptions = {}
+                if(violentPerPop < 0.003){
+                    purpleOptions = { fillColor: 'green', color:'green' }
+                }
+                else if(violentPerPop >= 0.003 && violentPerPop < 0.005){
+                    purpleOptions = { fillColor: 'yellow', color: '#fcdb03'}
+                }
+                else if(violentPerPop >= 0.005 && violentPerPop < 0.007){
+                    purpleOptions = { fillColor: 'orange', color: 'orange' }
+                }
+                else if(violentPerPop >= 0.007){
+                    purpleOptions = { fillColor: 'red', color: 'red' }
+                }
                 const polygon = JSON.parse(location.boundingBox);
-
                                 
                 return(<Polygon pathOptions={purpleOptions} positions={polygon} key={location.id}>
                     <Popup>
