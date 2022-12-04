@@ -21,7 +21,7 @@ const Map = () => {
     const [stateMarkers, setStateMarkers] = useState(null);
     const [showStates, setShowStates] = useState(false);
     // TODO: Mack will pass in dataset name here as a prop
-    const dataset = "crime.db";
+    const dataset = "sample.db";
     var zoomLevel = 10;
 
     const MapControllerComponent = () => {

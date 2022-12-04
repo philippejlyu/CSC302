@@ -5,6 +5,7 @@ import MyDatasets from './MyDatasets';
 import Visualize from './Visualize';
 import {BrowserRouter, Route, Routes} from "react-router-dom";
 
+export const SERVERSIDEPORT = 3000;
 function App() {
   return (
       <BrowserRouter>

@@ -1,7 +1,22 @@
 import React from "react";
 import SideBar from "./SideBar";
 import Button from "@mui/material/Button";
-import * as ReactDOM from 'react-dom';
+import { SERVERSIDEPORT } from './App.js';
+
+var rows = [];
+var datasetlist = null;
+
+class DbFileRow extends React.Component {
+  render() {
+    const dbfile = this.props.dbfile;
+    return (
+      <tr>
+        <td style={{border:"1px solid black"}}>
+          <Button id={dbfile} key={dbfile} onClick={(event) => {console.info(event.currentTarget.id); fetchDatabase(dbfile, datasetlist)}}>* {dbfile}</Button></td>
+      </tr>
+    )
+  }
+}
 
 class DatasetRow extends React.Component {
   render() {
@@ -28,10 +43,68 @@ class DatasetRow extends React.Component {
   }
 }
 
-const rows = [];
-const MyDatasets = () => {
+class DatasetTable extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      datas: [],
+      amount: -1
+    }
+  }
 
-  fetch('http://localhost:3000/mapData')
+  render() {
+    console.info("Rendering datatable");
+    datasetlist = this;
+    return (
+      <table>
+        <thead>
+          <tr>
+            <th>City</th>
+            <th>County</th>
+            <th>City</th>
+            <th>Population</th>
+            <th>HouseholdSize</th>
+            <th>Murders</th>
+            <th>Rapes</th>
+            <th>Robberies</th>
+            <th>Assaults</th>
+            <th>Burglaries</th>
+            <th>Larcenies</th>
+            <th>AutoThefts</th>
+            <th>Arsons</th>
+            <th>Violent Crime Rate</th>
+            <th>Others Crime Rate</th>
+          </tr>
+        </thead>
+        <tbody>{this.state.datas}</tbody>
+      </table>
+    );
+  }
+}
+
+const fetchDBFiles = () => {
+  fetch('http://localhost:' + SERVERSIDEPORT + '/mapData')
+  .then(function (res) {
+    console.log(res);
+    if (res.status === 200) {
+      console.log('200: My Datasets');
+      return res.json(); // Becomes the map data
+    }
+  })
+  .then(res => {
+    rows = [];
+    for (var k = 0; k < res.length; k++) {
+      rows.push(<DbFileRow dbfile={res[k]} component={this}/>)
+    }
+  })
+  .catch(error => {
+    console.log(error);
+  })
+}
+
+const fetchDatabase = (dbname, table) => {
+  console.log("Fetching from source " + dbname);
+  fetch('http://localhost:' + SERVERSIDEPORT + '/mapData?datasetID=' + dbname)
     .then(function (res) {
       console.log(res);
       if (res.status === 200) {
@@ -39,19 +112,23 @@ const MyDatasets = () => {
         return res.json(); // Becomes the map data
       }
     })
-    .then(mapData => {
-      console.info(mapData);
-      for (var k = 0; k < mapData.rows.length; k++) {
-        if (!k%100) {
-          console.info(mapData.rows[k]);
-        }
-        rows.push(<DatasetRow city={mapData.rows[k]}/>)
+    .then(res => {
+      var listing = [];
+      for (var k = 0; k < res.rows.length; k++) {
+        listing.push(<DatasetRow key={k} city={res.rows[k]}/>)
       }
+      console.info(listing);
+      table.setState({datas: listing, amount: res.rows.length});
+      console.info(table);
     })
     .catch(error => {
       console.log(error);
     })
+}
 
+const MyDatasets = () => {
+  console.log("Loaded MyDatasets page.")
+  fetchDBFiles();
   return (
     <React.Fragment>
       <SideBar></SideBar>
@@ -62,25 +139,12 @@ const MyDatasets = () => {
         <table>
           <thead>
             <tr>
-              <th>City</th>
-              <th>County</th>
-              <th>City</th>
-              <th>Population</th>
-              <th>HouseholdSize</th>
-              <th>Murders</th>
-              <th>Rapes</th>
-              <th>Robberies</th>
-              <th>Assaults</th>
-              <th>Burglaries</th>
-              <th>Larcenies</th>
-              <th>AutoThefts</th>
-              <th>Arsons</th>
-              <th>Violent Crime Rate</th>
-              <th>Others Crime Rate</th>
+              <th>Database File</th>
             </tr>
           </thead>
           <tbody>{rows}</tbody>
         </table>
+        <DatasetTable />
       </div>
     </React.Fragment>
   )

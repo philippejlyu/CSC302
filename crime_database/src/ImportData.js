@@ -5,6 +5,7 @@ import SideBar from "./SideBar";
 import * as ReactDOM from 'react-dom';
 import CSVImg from './images/csv.png';
 import ExcelImg from './images/excel.png';
+import { SERVERSIDEPORT } from './App.js';
 
 const ImportData = () => {
 
@@ -36,7 +37,8 @@ const ImportData = () => {
         }
 
         if(files.length > 0){
-        const url = 'http://localhost:3000/upload';
+        const url = 'http://localhost:' + SERVERSIDEPORT + '/upload';
+        console.log(url);
         const formData = new FormData();
     
         for(let i = 0; i < files.length; i++){

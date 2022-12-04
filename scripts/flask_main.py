@@ -15,6 +15,8 @@ import pandas as pd
 app = Flask(__name__, static_folder='build')
 cors = CORS(app)
 # app.config['CORS_HEADERS'] = 'Content-Type'
+DBFOLDER = "db/"
+SERVERSIDEPORT = 3000
 
 def generateStateData(filename: str):
     con = sqlite3.connect(filename)
@@ -211,7 +213,7 @@ def create_database():
             excel_file = pd.read_excel(file.filename)
             excel_file.to_csv(filename + ".csv", index=None, header=True)
             os.remove(file.filename)
-        os.system(f"sqlite-utils insert \"{filename}.db\" \"{filename}\" \"{filename+'.csv'}\" --csv -d")
+        os.system(f"sqlite-utils insert \"{DBFOLDER}{filename}.db\" \"{filename}\" \"{filename+'.csv'}\" --csv -d")
         os.remove(filename + '.csv')
     return "Successful"
 
@@ -224,7 +226,7 @@ def getMapData():
     if 'datasetID' in params:
         datset = params['datasetID']
         # Get sql data
-        con = sqlite3.connect(datset)
+        con = sqlite3.connect(DBFOLDER + datset)
         cur = con.cursor()
         if 'stateLevel' in params:
             res = cur.execute("SELECT * FROM locations WHERE isState=TRUE")
@@ -239,7 +241,9 @@ def getMapData():
 
         return jsonify({"rows": data})
     else:
-        return Response(status=400)
+        dbfiles = os.listdir(DBFOLDER)
+        print(dbfiles)
+        return jsonify(dbfiles)
         # Log this
 
 @app.route('/', defaults={'path': ''})
@@ -253,7 +257,4 @@ def serve(path):
     
 if __name__ == "__main__":
     print("The App static folder is {0:s}".format(app.static_folder));
-    app.run(debug=True, host='0.0.0.0', port=3000)
-    # print(getGeoJSON("", "TX"))
-    # processDatabase('./crime.db')
-    # generateStateData('./crime.db')
+    app.run(debug=True, host='0.0.0.0', port=SERVERSIDEPORT)
