@@ -5,7 +5,7 @@ import 'leaflet/dist/leaflet.css';
 
 import icon from 'leaflet/dist/images/marker-icon.png';
 import iconShadow from 'leaflet/dist/images/marker-shadow.png';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 let DefaultIcon = L.icon({
     iconUrl: icon,
@@ -13,21 +13,16 @@ let DefaultIcon = L.icon({
 });
 
 L.Marker.prototype.options.icon = DefaultIcon;
-const sample = "sample.db";
 
-const Map = () => {
+const Map = (props) => {
     const [loaded, setLoaded] = useState(false);
+    const [dataset, setDataset] = useState(props.dbFiles);
     const [markers, setMarkers] = useState(null);
     const [stateMarkers, setStateMarkers] = useState(null);
-    const [showStates, setShowStates] = useState(false);
-    const [dataset, setDataset] = useState(sample);
-
-    var zoomLevel = 10;
-
-    const f = "g";
+    const [showStates, setShowStates] = useState(false); 
 
     const MapControllerComponent = () => {
-
+        console.log("Controller");
         const loadStateMarkers = () => {
             console.log("Map: Loaded state markers on demand");
             fetch('http://localhost:3000/mapData?stateLevel&datasetID=' + dataset)
@@ -56,7 +51,7 @@ const Map = () => {
                         })
                     }
                     setStateMarkers(stateLocations);
-                    // setLoaded(true);
+                    setLoaded(true);
                 });
         }
 
@@ -77,15 +72,19 @@ const Map = () => {
         return null
     }
 
-    React.useEffect(() => {
-        console.log("Map use Effect");
-        const fetchURL = 'http://localhost:3000/mapData?datasetID=' + dataset;
+    const updateMap = (datset=dataset) => {
+        console.log("Map use Effect " + datset);
+        if (!datset) {
+            setMarkers([]);
+            setLoaded(true);
+        }
+        const fetchURL = 'http://localhost:3000/mapData?datasetID=' + datset;
         fetch(fetchURL)
             .then(function (res) {
                 if (res.status === 200) {
                     return res.json();
                 }
-            }).then(mapData => {
+            }).then(mapData => { 
                 var locations = []
                 console.log(mapData);
                 for (var i = 0; i < mapData.rows.length; i++) {
@@ -108,10 +107,21 @@ const Map = () => {
                     })
                 }
                 setMarkers(locations);
+                setDataset(datset);
                 setLoaded(true);
-                setDataset(dataset);
             });
-    }, []);
+    }
+
+    if (dataset != props.dbFiles) {
+        console.log("Reloading map with dataset " + props.dbFiles);
+        setLoaded(false);
+        setDataset(props.dbFiles);
+        setMarkers(null);
+        setShowStates(false);
+        updateMap(props.dbFiles);
+    }
+    
+    React.useEffect(updateMap, []);
 
     return (
         <MapContainer center={[40.762730914502896, -73.97376139655083]} zoom={10} scrollWheelZoom={true}>
@@ -121,7 +131,7 @@ const Map = () => {
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             />
             {/* City data */}
-            {loaded && !showStates && markers.length > 0 &&
+            {loaded && !showStates && markers && markers.length > 0 &&
                 markers.map((location) => {
                     let violentPerPop = (location.murders + location.assaults) / location.population;
                     var purpleOptions = {}
