@@ -23,30 +23,63 @@ import { SERVERSIDEPORT } from './App.js';
 var dbfiles = [];
 var datasetlist = null;
 
-class DatasetRow extends React.Component {
-  render() {
-    const city = this.props.city;
-    return (
-      <TableRow>
-        <TableCell style={{border:"1px solid silver"}}>{city[0]}</TableCell>
-        <TableCell style={{border:"1px solid silver"}}>{city[2]}</TableCell>
-        <TableCell style={{border:"1px solid silver"}}>{city[1]}</TableCell>
-        <TableCell style={{border:"1px solid silver"}}>{city[4]}</TableCell>
-        <TableCell style={{border:"1px solid silver"}}>{city[5]}</TableCell>
-        <TableCell style={{border:"1px solid silver"}}>{city[128]}</TableCell>
-        <TableCell style={{border:"1px solid silver"}}>{city[130]}</TableCell>
-        <TableCell style={{border:"1px solid silver"}}>{city[132]}</TableCell>
-        <TableCell style={{border:"1px solid silver"}}>{city[134]}</TableCell>
-        <TableCell style={{border:"1px solid silver"}}>{city[136]}</TableCell>
-        <TableCell style={{border:"1px solid silver"}}>{city[138]}</TableCell>
-        <TableCell style={{border:"1px solid silver"}}>{city[140]}</TableCell>
-        <TableCell style={{border:"1px solid silver"}}>{city[142]}</TableCell>
-        <TableCell style={{border:"1px solid silver"}}>{city[144]}</TableCell>
-        <TableCell style={{border:"1px solid silver"}}>{city[145]}</TableCell>
-      </TableRow>
-    )
+function descendingComparator(a, b, orderBy) {
+  if (b[orderBy] < a[orderBy]) {
+    return -1;
   }
+  if (b[orderBy] > a[orderBy]) {
+    return 1;
+  }
+  return 0;
 }
+
+function getComparator(order, orderBy) {
+  return order === 'desc'
+    ? (a, b) => descendingComparator(a, b, orderBy)
+    : (a, b) => -descendingComparator(a, b, orderBy);
+}
+
+// This method is created for cross-browser compatibility, if you don't
+// need to support IE11, you can use Array.prototype.sort() directly
+function stableSort(array, comparator) {
+  const stabilizedThis = array.map((el, index) => [el, index]);
+  stabilizedThis.sort((a, b) => {
+    const order = comparator(a[0], b[0]);
+    if (order !== 0) {
+      return order;
+    }
+    return a[1] - b[1];
+  });
+  return stabilizedThis.map((el) => el[0]);
+}
+
+const headCells = [
+  {
+    id: '0',
+    numeric: false,
+    label: 'City',
+  },
+  {
+    id: '2',
+    numeric: false,
+    label: 'County',
+  },
+  {
+    id: '1',
+    numeric: false,
+    label: 'State',
+  },
+  {
+    id: '4',
+    numeric: true,
+    label: 'Population',
+  },
+  {
+    id: '5',
+    numeric: true,
+    label: 'HouseholdSize',
+  },
+];
 
 class DatasetTable extends React.Component {
   constructor(props) {
@@ -60,9 +93,21 @@ class DatasetTable extends React.Component {
   render() {
     console.info("Rendering datatable");
     datasetlist = this;
-    var listrows = this.state.rows.map((k) => {
+    var headingrow = headCells.map((cell) => {
       return (
-        <DatasetRow key={k} city={k}/>
+        <TableCell>{cell.label}</TableCell>
+      )
+    })
+    var listrows = this.state.rows.map((city) => {
+      var rows = headCells.map((cell) => { 
+        return (
+          <TableCell style={{border:"1px solid silver"}}>{city[cell.id]}</TableCell>
+        )
+      })
+      return (
+        <TableRow>
+          {rows}
+        </TableRow>
       )
     });
     console.info(listrows);
@@ -72,24 +117,12 @@ class DatasetTable extends React.Component {
         <Table sx={{ minWidth: 650 }} size="small" aria-label="Crime Table">
           <TableHead>
             <TableRow>
-              <TableCell>City</TableCell>
-              <TableCell>County</TableCell>
-              <TableCell>City</TableCell>
-              <TableCell>Population</TableCell>
-              <TableCell>HouseholdSize</TableCell>
-              <TableCell>Murders</TableCell>
-              <TableCell>Rapes</TableCell>
-              <TableCell>Robberies</TableCell>
-              <TableCell>Assaults</TableCell>
-              <TableCell>Burglaries</TableCell>
-              <TableCell>Larcenies</TableCell>
-              <TableCell>AutoThefts</TableCell>
-              <TableCell>Arsons</TableCell>
-              <TableCell>Violent Crime Rate</TableCell>
-              <TableCell>Others Crime Rate</TableCell>
+              {headingrow}
             </TableRow>
           </TableHead>
-          <TableBody>{listrows}</TableBody>
+          <TableBody>
+            {listrows}
+            </TableBody>
         </Table>
       </TableContainer>
     );
