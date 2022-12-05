@@ -1,11 +1,10 @@
 import React from "react";
 import SideBar from "./SideBar";
-import Button from "@mui/material/Button";
+import PropTypes from 'prop-types';
 
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
-import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 
 import Table from '@mui/material/Table';
@@ -22,7 +21,6 @@ import Paper from '@mui/material/Paper';
 import { SERVERSIDEPORT } from './App.js';
 
 var dbfiles = [];
-var listFiles = <Typography>Looking for database...</Typography>;
 var datasetlist = null;
 
 class DatasetRow extends React.Component {
@@ -54,14 +52,21 @@ class DatasetTable extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      datas: [],
-      amount: -1
+      rows: [],
+      amount: -1,
     }
   }
 
   render() {
     console.info("Rendering datatable");
     datasetlist = this;
+    var listrows = this.state.rows.map((k) => {
+      return (
+        <DatasetRow key={k} city={k}/>
+      )
+    });
+    console.info(listrows);
+    
     return (
       <TableContainer component={Paper}>
         <Table sx={{ minWidth: 650 }} size="small" aria-label="Crime Table">
@@ -84,9 +89,39 @@ class DatasetTable extends React.Component {
               <TableCell>Others Crime Rate</TableCell>
             </TableRow>
           </TableHead>
-          <tbody>{this.state.datas}</tbody>
+          <TableBody>{listrows}</TableBody>
         </Table>
       </TableContainer>
+    );
+  }
+}
+
+class DbFilesList extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      dbfile: null,
+    }
+  }
+
+  render() {
+    var listfiles = <Typography>Looking for database...</Typography>
+    if (dbfiles) {
+      listfiles = dbfiles.map((file) => {
+        return (
+          <ListItem key={file.toString()} value={file} size="small" aria-label="Listed File">
+            <ListItemButton onClick={() => {fetchDatabase(file, datasetlist)}}>
+              <ListItemText primary={file}/>
+            </ListItemButton>
+          </ListItem>
+        )
+      });
+    }
+
+    return (
+      <List>
+        {listfiles}
+      </List>
     );
   }
 }
@@ -102,15 +137,6 @@ const fetchDBFiles = () => {
   })
   .then(res => {
     dbfiles = res;
-    listFiles = dbfiles.map((file) => {
-      return (
-        <ListItem key={file.toString()} value={file} size="small" aria-label="Listed File">
-          <ListItemButton onClick={(event) => {console.info(event.currentTarget.id); fetchDatabase(dbfiles, datasetlist)}}>
-            <ListItemText primary={file}/>
-          </ListItemButton>
-        </ListItem>
-      )
-    });
   })
   .catch(error => {
     console.log(error);
@@ -128,13 +154,7 @@ const fetchDatabase = (dbname, table) => {
       }
     })
     .then(res => {
-      var listing = [];
-      for (var k = 0; k < res.rows.length; k++) {
-        listing.push(<DatasetRow key={k} city={res.rows[k]}/>)
-      }
-      console.info(listing);
-      table.setState({datas: listing, amount: res.rows.length});
-      console.info(table);
+      table.setState({rows: res.rows, amount: res.rows.length});
     })
     .catch(error => {
       console.log(error);
@@ -150,9 +170,7 @@ const MyDatasets = () => {
       <div id='main-page' style={{ marginTop: '75px', marginLeft: '300px' }}>
         <h1>My Datasets</h1>
         <Typography>Display a table of crime data.</Typography>
-        <List>
-          {listFiles}
-        </List>
+        <DbFilesList />
         <DatasetTable />
       </div>
     </React.Fragment>
