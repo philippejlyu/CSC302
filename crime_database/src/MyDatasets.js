@@ -1,44 +1,51 @@
 import React from "react";
 import SideBar from "./SideBar";
 import Button from "@mui/material/Button";
+
+import List from '@mui/material/List';
+import ListItem from '@mui/material/ListItem';
+import ListItemButton from '@mui/material/ListItemButton';
+import ListItemIcon from '@mui/material/ListItemIcon';
+import ListItemText from '@mui/material/ListItemText';
+
+import Table from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
+import TableCell from '@mui/material/TableCell';
+import TableContainer from '@mui/material/TableContainer';
+import TableHead from '@mui/material/TableHead';
+import TablePagination from '@mui/material/TablePagination';
+import TableRow from '@mui/material/TableRow';
+import TableSortLabel from '@mui/material/TableSortLabel';
+
+import Typography from '@mui/material/Typography';
+import Paper from '@mui/material/Paper';
 import { SERVERSIDEPORT } from './App.js';
 
-var rows = [];
+var dbfiles = [];
+var listFiles = <Typography>Looking for database...</Typography>;
 var datasetlist = null;
-
-class DbFileRow extends React.Component {
-  render() {
-    const dbfile = this.props.dbfile;
-    return (
-      <tr>
-        <td style={{border:"1px solid black"}}>
-          <Button id={dbfile} key={dbfile} onClick={(event) => {console.info(event.currentTarget.id); fetchDatabase(dbfile, datasetlist)}}>* {dbfile}</Button></td>
-      </tr>
-    )
-  }
-}
 
 class DatasetRow extends React.Component {
   render() {
     const city = this.props.city;
     return (
-      <tr>
-        <td style={{border:"1px solid black"}}>{city[0]}</td>
-        <td style={{border:"1px solid black"}}>{city[2]}</td>
-        <td style={{border:"1px solid black"}}>{city[1]}</td>
-        <td style={{border:"1px solid black"}}>{city[4]}</td>
-        <td style={{border:"1px solid black"}}>{city[5]}</td>
-        <td style={{border:"1px solid black"}}>{city[128]}</td>
-        <td style={{border:"1px solid black"}}>{city[130]}</td>
-        <td style={{border:"1px solid black"}}>{city[132]}</td>
-        <td style={{border:"1px solid black"}}>{city[134]}</td>
-        <td style={{border:"1px solid black"}}>{city[136]}</td>
-        <td style={{border:"1px solid black"}}>{city[138]}</td>
-        <td style={{border:"1px solid black"}}>{city[140]}</td>
-        <td style={{border:"1px solid black"}}>{city[142]}</td>
-        <td style={{border:"1px solid black"}}>{city[144]}</td>
-        <td style={{border:"1px solid black"}}>{city[145]}</td>
-      </tr>
+      <TableRow>
+        <TableCell style={{border:"1px solid silver"}}>{city[0]}</TableCell>
+        <TableCell style={{border:"1px solid silver"}}>{city[2]}</TableCell>
+        <TableCell style={{border:"1px solid silver"}}>{city[1]}</TableCell>
+        <TableCell style={{border:"1px solid silver"}}>{city[4]}</TableCell>
+        <TableCell style={{border:"1px solid silver"}}>{city[5]}</TableCell>
+        <TableCell style={{border:"1px solid silver"}}>{city[128]}</TableCell>
+        <TableCell style={{border:"1px solid silver"}}>{city[130]}</TableCell>
+        <TableCell style={{border:"1px solid silver"}}>{city[132]}</TableCell>
+        <TableCell style={{border:"1px solid silver"}}>{city[134]}</TableCell>
+        <TableCell style={{border:"1px solid silver"}}>{city[136]}</TableCell>
+        <TableCell style={{border:"1px solid silver"}}>{city[138]}</TableCell>
+        <TableCell style={{border:"1px solid silver"}}>{city[140]}</TableCell>
+        <TableCell style={{border:"1px solid silver"}}>{city[142]}</TableCell>
+        <TableCell style={{border:"1px solid silver"}}>{city[144]}</TableCell>
+        <TableCell style={{border:"1px solid silver"}}>{city[145]}</TableCell>
+      </TableRow>
     )
   }
 }
@@ -56,28 +63,30 @@ class DatasetTable extends React.Component {
     console.info("Rendering datatable");
     datasetlist = this;
     return (
-      <table>
-        <thead>
-          <tr>
-            <th>City</th>
-            <th>County</th>
-            <th>City</th>
-            <th>Population</th>
-            <th>HouseholdSize</th>
-            <th>Murders</th>
-            <th>Rapes</th>
-            <th>Robberies</th>
-            <th>Assaults</th>
-            <th>Burglaries</th>
-            <th>Larcenies</th>
-            <th>AutoThefts</th>
-            <th>Arsons</th>
-            <th>Violent Crime Rate</th>
-            <th>Others Crime Rate</th>
-          </tr>
-        </thead>
-        <tbody>{this.state.datas}</tbody>
-      </table>
+      <TableContainer component={Paper}>
+        <Table sx={{ minWidth: 650 }} size="small" aria-label="Crime Table">
+          <TableHead>
+            <TableRow>
+              <TableCell>City</TableCell>
+              <TableCell>County</TableCell>
+              <TableCell>City</TableCell>
+              <TableCell>Population</TableCell>
+              <TableCell>HouseholdSize</TableCell>
+              <TableCell>Murders</TableCell>
+              <TableCell>Rapes</TableCell>
+              <TableCell>Robberies</TableCell>
+              <TableCell>Assaults</TableCell>
+              <TableCell>Burglaries</TableCell>
+              <TableCell>Larcenies</TableCell>
+              <TableCell>AutoThefts</TableCell>
+              <TableCell>Arsons</TableCell>
+              <TableCell>Violent Crime Rate</TableCell>
+              <TableCell>Others Crime Rate</TableCell>
+            </TableRow>
+          </TableHead>
+          <tbody>{this.state.datas}</tbody>
+        </Table>
+      </TableContainer>
     );
   }
 }
@@ -92,10 +101,16 @@ const fetchDBFiles = () => {
     }
   })
   .then(res => {
-    rows = [];
-    for (var k = 0; k < res.length; k++) {
-      rows.push(<DbFileRow dbfile={res[k]} component={this}/>)
-    }
+    dbfiles = res;
+    listFiles = dbfiles.map((file) => {
+      return (
+        <ListItem key={file.toString()} value={file} size="small" aria-label="Listed File">
+          <ListItemButton onClick={(event) => {console.info(event.currentTarget.id); fetchDatabase(dbfiles, datasetlist)}}>
+            <ListItemText primary={file}/>
+          </ListItemButton>
+        </ListItem>
+      )
+    });
   })
   .catch(error => {
     console.log(error);
@@ -134,16 +149,10 @@ const MyDatasets = () => {
       <SideBar></SideBar>
       <div id='main-page' style={{ marginTop: '75px', marginLeft: '300px' }}>
         <h1>My Datasets</h1>
-        <div id='dataset-page'></div>
-        <Button onClick={() => console.info("ZOMFG")}>Number of Results</Button>
-        <table>
-          <thead>
-            <tr>
-              <th>Database File</th>
-            </tr>
-          </thead>
-          <tbody>{rows}</tbody>
-        </table>
+        <Typography>Display a table of crime data.</Typography>
+        <List>
+          {listFiles}
+        </List>
         <DatasetTable />
       </div>
     </React.Fragment>
