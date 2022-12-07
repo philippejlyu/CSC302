@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from 'react';
 import SideBar from "./SideBar";
 import Map from "./Map";
 import FormControl from "@mui/material/FormControl";
@@ -8,32 +8,40 @@ import MenuItem from "@mui/material/MenuItem";
 import { SERVERSIDEPORT } from './App.js';
 
 var rows = []
-var map = <Map id={"map"} data={"sample.db"}></Map>
-
-const fetchDBFiles = () => {
-  fetch('http://localhost:' + SERVERSIDEPORT + '/mapData')
-  .then(function (res) {
-    console.log(res);
-    if (res.status === 200) {
-      console.log('200: Visualization');
-      return res.json(); // Becomes the map data
-    }
-  })
-  .then(res => {
-    rows = [""];
-    for (var k = 0; k < res.length; k++) {
-      rows.push(res[k]);
-    }
-  })
-  .catch(error => {
-    console.log(error);
-  })
-}
+var map = "..."
 
 const Visualize = () => {
-  const [dataset, setDataset] = useState("sample.db");
-  fetchDBFiles();
-  console.info("Visualize rerender");
+  const [loaded, setLoaded] = useState(false);
+  const [count, setCount] = useState(0);
+  const [dataset, setDataset] = useState(null);
+  
+  const fetchDBFiles = () => {
+    fetch('http://localhost:' + SERVERSIDEPORT + '/mapData')
+    .then(function (res) {
+      console.log(res);
+      if (res.status === 200) {
+        console.log('200: My Datasets');
+        return res.json(); // Becomes the map data
+      }
+    })
+    .then(res => {
+      rows = res;
+      setLoaded(true);
+      setCount(count + 1);
+    })
+    .catch(error => {
+      console.log(error);
+    })
+  } 
+  
+  useEffect(() => { document.title = `Visualization (${count})`;
+    document.title = `My Datasets (${count})`;
+    console.info("Visualize rerender");
+    if (!loaded) {
+      fetchDBFiles();
+    }
+  }, [loaded]);
+  
   return (
     <React.Fragment>
       <SideBar></SideBar>
@@ -45,7 +53,7 @@ const Visualize = () => {
             id="demo-simple-select"
             value={dataset}
             label="Dataset Selection"
-            onChange={(event)=>{setDataset(event.target.value); console.info(dataset); map=null; map=<Map id={"map"} data={"sample.db"}></Map>}}
+            onChange={(event)=>{setDataset(event.target.value); console.info(dataset);}}
           >
           {console.log(rows)}
           {rows.map((name) => (
@@ -53,12 +61,12 @@ const Visualize = () => {
               key={name}
               value={name}
             >
-              {"* " + name}
+              {name}
             </MenuItem>
           ))}
           </Select>
         </FormControl>
-        {map}
+        <Map id={"map"} dbFiles={dataset}></Map>
       </div>
     </React.Fragment>
   )
