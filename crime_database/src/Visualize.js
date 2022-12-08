@@ -23,6 +23,14 @@ const Visualize = () => {
         console.log('200: My Datasets');
         return res.json(); // Becomes the map data
       }
+      if (res.status === 418) {
+        console.log('418: My Datasets');
+        return {"rows":[]};
+      }
+      if (res.status === 300) {
+        console.log('300: My Datasets');
+        return {"rows":[]};
+      }
     })
     .then(res => {
       rows = res;

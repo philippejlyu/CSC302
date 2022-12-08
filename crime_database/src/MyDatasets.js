@@ -22,7 +22,8 @@ import Paper from '@mui/material/Paper';
 import { SERVERSIDEPORT } from './App.js';
 import { fontWeight } from "@mui/system";
 
-var datasetlist = null;
+const INIT_COUNT = -1;
+const NOT_A_DB = -2;
 
 /* **********  **********  **********  **********  **********  **********  **********  **********  */
 
@@ -217,41 +218,50 @@ class DatasetTable extends React.Component {
   }
 
   render() {
-    console.info("Rendering datatable");
-    if (!this.props.dbRows || !this.props.dbRows.rows) {
-      return (
-        <TableRow>
-          ...
-        </TableRow>
-      )
+    console.log("Rendering datatable");
+
+    var specialmessage = null;
+    if (this.props.dbCount === INIT_COUNT) {
+      specialmessage = "Select a Dataset";
     }
+    if (this.props.dbCount === NOT_A_DB) {
+      specialmessage = "File is not a DB"
+    }
+
     var headingrow = headCells.map((cell) => {
       if (cell.show) {
         return (
-          <TableCell>{cell.label}</TableCell>
+          <TableCell><Typography fontWeight={"bold"}>{cell.label}</Typography></TableCell>
         )
       }
     })
-    var listrows = this.props.dbRows.rows.map((city) => {
-      var rows = headCells.map((cell) => {
-        if (cell.id === 0) {
-          return (
-            <TableCell style={{border:"1px solid silver"}}>{city[cell.id]}
-            </TableCell>
-          )
-        }
-        else if (cell.show) {
-          return (
-            <TableCell style={{border:"1px solid silver"}}>{city[cell.id]}</TableCell>
-          )
-        }
-      })
-      return (
-        <TableRow>
-          {rows}
-        </TableRow>
-      )
-    });
+
+    /* Generate Table */
+    var listrows = []
+    if (this.props.dbRows && this.props.dbRows.rows !== undefined) {
+      listrows = this.props.dbRows.rows.map((city) => {
+        var fontstyle = city[149] ? "blue" : "green";
+        var rows = headCells.map((cell) => {
+          if (cell.id === 0) {
+            return (
+              <TableCell style={{border:"1px solid silver", color:{fontstyle}}}><b>{city[cell.id]}</b>
+              </TableCell>
+            )
+          }
+          else if (cell.show) {
+            return (
+              <TableCell style={{border:"1px solid silver", color:{fontstyle}}}>{city[cell.id]}
+              </TableCell>
+            )
+          }
+        })
+        return (
+          <TableRow>
+            {rows}
+          </TableRow>
+        )
+      });
+    }
     
     return (
       <React.Fragment> 
@@ -267,6 +277,7 @@ class DatasetTable extends React.Component {
               </TableBody>
           </Table>
         </TableContainer>
+        <Typography fontStyle={"italic"} variant="subtitle1">{specialmessage}</Typography>
       </React.Fragment>
     );
   }
@@ -312,6 +323,7 @@ const MyDatasets = () => {
   const [count, setCount] = useState(0);
   const [dbFiles, setDbfiles] = useState(null);
   const [dbRows, setDbrows] = useState([]);
+  const [dbCount, setDbCount] = useState(INIT_COUNT);
 
   const fetchDBFiles = () => {
     fetch('http://localhost:' + SERVERSIDEPORT + '/mapData')
@@ -320,6 +332,10 @@ const MyDatasets = () => {
       if (res.status === 200) {
         console.log('200: My Datasets');
         return res.json(); // Becomes the map data
+      }
+      else {
+        console.log(res.status + ': My Datasets');
+        return res.json();
       }
     })
     .then(res => {
@@ -334,29 +350,38 @@ const MyDatasets = () => {
 
   const fetchDatabase = (dbname) => {
     console.log("Fetching from source " + dbname);
-    fetch('http://localhost:' + SERVERSIDEPORT + '/mapData?datasetID=' + dbname)
+    fetch('http://localhost:' + SERVERSIDEPORT + '/mapData?allLevel&datasetID=' + dbname)
       .then(function (res) {
         console.log(res);
         if (res.status === 200) {
           console.log('200: My Datasets');
           return res.json(); // Becomes the map data
         }
+        else {
+          console.log(res.status + ': My Datasets');
+          return {};
+        }
       })
       .then(res => {
+        if (!res || res.rows === undefined) {
+          setDbCount(NOT_A_DB);
+          setDbrows([]);
+          throw Error("Response not of correct format: Response does not have rows field");
+        }
         setDbrows({rows: res.rows, amount: res.rows.length});
+        setDbCount(res.rows.length);
       })
       .catch(error => {
-        console.log(error);
+        console.warn(error);
       })
   }
 
   useEffect(() => { 
     document.title = `My Datasets (${count})`;
-    console.log("Loaded MyDatasets page.")
+    console.log(`Loaded MyDatasets page (${dbCount})`)
     if (!loaded) {
       fetchDBFiles();
     }
-    
   });
   
   return (
@@ -366,7 +391,7 @@ const MyDatasets = () => {
         <h1>My Datasets</h1>
         <Typography>Display a table of crime data.</Typography>
         <DbFilesList dbfiles={dbFiles} f={setDbfiles} g={fetchDatabase} />
-        <DatasetTable dbRows={dbRows} />
+        <DatasetTable dbRows={dbRows} dbCount={dbCount}/>
       </div>
     </React.Fragment>
   )

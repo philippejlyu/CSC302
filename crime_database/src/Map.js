@@ -22,41 +22,15 @@ const Map = (props) => {
     const [showStates, setShowStates] = useState(false); 
 
     const MapControllerComponent = () => {
-        console.log("Controller");
+        console.log("Map: Controller");
         const loadStateMarkers = () => {
             console.log("Map: Loaded state markers on demand");
-            fetch('http://localhost:3000/mapData?stateLevel&datasetID=' + dataset)
-                .then(function (res) {
-                    if (res.status === 200) {
-                        return res.json();
-                    }
-                }).then(mapData => {
-                    var stateLocations = []
-                    for (var i = 0; i < mapData.rows.length; i++) {
-                        stateLocations.push({
-                            "lat": mapData.rows[i][147],
-                            "lon": mapData.rows[i][148],
-                            "cityname": mapData.rows[i][0],
-                            "population": mapData.rows[i][4],
-                            "populationDensity": mapData.rows[i][120],
-                            "murders": mapData.rows[i][128],
-                            "robberies": mapData.rows[i][132],
-                            "assaults": mapData.rows[i][134],
-                            "burglaries": mapData.rows[i][136],
-                            "larcenies": mapData.rows[i][138],
-                            "autoTheft": mapData.rows[i][140],
-                            "arson": mapData.rows[i][142],
-                            "boundingBox": mapData.rows[i][146],
-                            "id": "stateLevel" + i
-                        })
-                    }
-                    setStateMarkers(stateLocations);
-                    setLoaded(true);
-                });
+            fetchMapStateData();
         }
 
         const map = useMapEvents({
             zoomend: () => {
+                console.log(`Map: Zoom (${map.getZoom()})`);
                 if (stateMarkers == null) {
                     loadStateMarkers();
                 }
@@ -72,12 +46,16 @@ const Map = (props) => {
         return null
     }
 
-    const updateMap = (datset=dataset) => {
-        console.log("Map use Effect " + datset);
+    const updateMap = (datset = dataset) => {
+        console.log("Map: Updated");
         if (!datset) {
             setMarkers([]);
             setLoaded(true);
         }
+        fetchMapData(datset);
+    }
+
+    const fetchMapData = (datset) => {
         const fetchURL = 'http://localhost:3000/mapData?datasetID=' + datset;
         fetch(fetchURL)
             .then(function (res) {
@@ -88,10 +66,17 @@ const Map = (props) => {
                 var locations = []
                 console.log(mapData);
                 for (var i = 0; i < mapData.rows.length; i++) {
-                    // console.log("Locations: " + mapData.rows[i].latitude + ", " + mapData.rows[i].longitude);
+                    // Handle edge cases for missing data
+                    var lat = mapData.rows[i][147];
+                    var lon = mapData.rows[i][148];
+                    var geo = mapData.rows[i][146];
+                    if (!lat || !lon || !geo) {
+                        console.error(`Error processing mapdata information: ${mapData.rows[i][0]} ; ${lat} ; ${lon} ; ${!geo ? "[0]" : "[" + geo.length + "]"}`);
+                        continue;
+                    }
                     locations.push({
-                        "lat": mapData.rows[i][147],
-                        "lon": mapData.rows[i][148],
+                        "lat": mapData.rows[i][147], // Must be present
+                        "lon": mapData.rows[i][148], // Must be present
                         "cityname": mapData.rows[i][0],
                         "population": mapData.rows[i][4],
                         "populationDensity": mapData.rows[i][120],
@@ -102,7 +87,7 @@ const Map = (props) => {
                         "larcenies": mapData.rows[i][138],
                         "autoTheft": mapData.rows[i][140],
                         "arson": mapData.rows[i][142],
-                        "boundingBox": mapData.rows[i][146],
+                        "boundingBox": mapData.rows[i][146], // Must be present
                         "id": i
                     })
                 }
@@ -112,11 +97,49 @@ const Map = (props) => {
             });
     }
 
+    const fetchMapStateData = () => {
+        fetch('http://localhost:3000/mapData?stateLevel&datasetID=' + dataset)
+        .then(function (res) {
+            if (res.status === 200) {
+                return res.json();
+            }
+        }).then(mapData => {
+            var stateLocations = []
+            for (var i = 0; i < mapData.rows.length; i++) {
+                // Handle edge cases for missing data
+                var geo = mapData.rows[i][146];
+                if (!geo) {
+                    console.error(`Error processing mapdata information: ${mapData.rows[i][0]} ; ${!geo ? "[0]" : "[" + geo.length + "]"}`);
+                    continue;
+                }
+                stateLocations.push({
+                    "lat": mapData.rows[i][147],
+                    "lon": mapData.rows[i][148],
+                    "cityname": mapData.rows[i][0],
+                    "population": mapData.rows[i][4],
+                    "populationDensity": mapData.rows[i][120],
+                    "murders": mapData.rows[i][128],
+                    "robberies": mapData.rows[i][132],
+                    "assaults": mapData.rows[i][134],
+                    "burglaries": mapData.rows[i][136],
+                    "larcenies": mapData.rows[i][138],
+                    "autoTheft": mapData.rows[i][140],
+                    "arson": mapData.rows[i][142],
+                    "boundingBox": geo,
+                    "id": "stateLevel" + i
+                })
+            }
+            setStateMarkers(stateLocations);
+            setLoaded(true);
+        });
+    }
+
     if (dataset != props.dbFiles) {
         console.log("Reloading map with dataset " + props.dbFiles);
         setLoaded(false);
         setDataset(props.dbFiles);
         setMarkers(null);
+        setStateMarkers(null);
         setShowStates(false);
         updateMap(props.dbFiles);
     }
@@ -150,7 +173,6 @@ const Map = (props) => {
 
                     const polygon = JSON.parse(location.boundingBox);
 
-
                     return (<Polygon pathOptions={purpleOptions} positions={polygon} key={location.id}>
                         <Popup>
                             <center><b>{location.cityname}</b></center><br></br>
@@ -169,7 +191,7 @@ const Map = (props) => {
 
                 })}
             {/* State data */}
-            {loaded && showStates && stateMarkers.length > 0 &&
+            {loaded && showStates && stateMarkers &&
                 stateMarkers.map((location) => {
                     let violentPerPop = (location.murders + location.assaults) / location.population;
                     var purpleOptions = {}
