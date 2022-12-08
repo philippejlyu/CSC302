@@ -249,7 +249,7 @@ def getMapData():
         try:
             if 'stateLevel' in params:
                 res = cur.execute("SELECT * FROM locations WHERE isState=TRUE")
-            elif 'allLevel':
+            elif 'allLevel' in params:
                 res = cur.execute("SELECT * FROM locations")
             else:
                 res = cur.execute("SELECT * FROM locations WHERE isState<>TRUE OR isState IS NULL")

@@ -5,6 +5,7 @@ import FormControl from "@mui/material/FormControl";
 import InputLabel from "@mui/material/InputLabel";
 import Select from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
+import DescriptionIcon from '@mui/icons-material/Description';
 import { SERVERSIDEPORT } from './App.js';
 
 var rows = []
@@ -59,17 +60,16 @@ const Visualize = () => {
           <Select
             labelId="demo-simple-select-label"
             id="demo-simple-select"
-            value={dataset}
+            value={!dataset ? "" : dataset}
             label="Dataset Selection"
-            onChange={(event)=>{setDataset(event.target.value); console.info(dataset);}}
+            onChange={(event)=>{setDataset(event.target.value); console.info(dataset); console.log(rows)}}
           >
-          {console.log(rows)}
           {rows.map((name) => (
             <MenuItem
               key={name}
               value={name}
             >
-              {name}
+              <DescriptionIcon/> {name}
             </MenuItem>
           ))}
           </Select>

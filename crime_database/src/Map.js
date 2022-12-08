@@ -31,7 +31,7 @@ const Map = (props) => {
         const map = useMapEvents({
             zoomend: () => {
                 console.log(`Map: Zoom (${map.getZoom()})`);
-                if (stateMarkers == null) {
+                if (markers && !stateMarkers) {
                     loadStateMarkers();
                 }
                 // Toggle when zoom crosses level 8
@@ -50,17 +50,29 @@ const Map = (props) => {
         console.log("Map: Updated");
         if (!datset) {
             setMarkers([]);
+            setStateMarkers([]);
             setLoaded(true);
+            console.log(`Currently not feteching with any data (${datset === "" ? "ε" : datset})`);
+            return;
         }
         fetchMapData(datset);
     }
 
     const fetchMapData = (datset) => {
+        if (!datset) {
+            console.error(`Currently not feteching with any data (${datset === "" ? "ε" : datset})`);
+            return;
+        }
         const fetchURL = 'http://localhost:3000/mapData?datasetID=' + datset;
         fetch(fetchURL)
             .then(function (res) {
                 if (res.status === 200) {
+                    console.log('200: Map Cities');
                     return res.json();
+                }
+                else {
+                    console.log(res.status + ': Map Cities');
+                    throw Error("Response not of correct format: Response does not have rows field");
                 }
             }).then(mapData => { 
                 var locations = []
@@ -94,6 +106,8 @@ const Map = (props) => {
                 setMarkers(locations);
                 setDataset(datset);
                 setLoaded(true);
+            }).catch(error => {
+                console.warn(error);
             });
     }
 
@@ -101,6 +115,7 @@ const Map = (props) => {
         fetch('http://localhost:3000/mapData?stateLevel&datasetID=' + dataset)
         .then(function (res) {
             if (res.status === 200) {
+                console.log('200: Map States');
                 return res.json();
             }
         }).then(mapData => {
@@ -131,6 +146,8 @@ const Map = (props) => {
             }
             setStateMarkers(stateLocations);
             setLoaded(true);
+        }).catch(error => {
+            console.warn(error);
         });
     }
 

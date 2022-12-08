@@ -207,7 +207,7 @@ const headCells = [
   {id:146, numeric: true, abbrid:null, show:false, label: "geojson"},
   {id:147, numeric: true, abbrid:null, show:true, label: "lat"},
   {id:148, numeric: true, abbrid:null, show:true, label: "lon"},
-  {id:149, numeric: true, abbrid:null, show:false, label: "isState"}
+  {id:149, numeric: true, abbrid:null, show:true, label: "isState"}
 ];
 
 /* **********  **********  **********  **********  **********  **********  **********  **********  */
@@ -231,7 +231,7 @@ class DatasetTable extends React.Component {
     var headingrow = headCells.map((cell) => {
       if (cell.show) {
         return (
-          <TableCell><Typography fontWeight={"bold"}>{cell.label}</Typography></TableCell>
+          <TableCell key={cell.label}><Typography fontWeight={"bold"}>{cell.label}</Typography></TableCell>
         )
       }
     })
@@ -244,19 +244,21 @@ class DatasetTable extends React.Component {
         var rows = headCells.map((cell) => {
           if (cell.id === 0) {
             return (
-              <TableCell style={{border:"1px solid silver", color:{fontstyle}}}><b>{city[cell.id]}</b>
+              <TableCell key={`${city}[0]`} style={{border:"1px solid silver", color:{fontstyle}}}>
+                <b>{city[cell.id]}</b>
               </TableCell>
             )
           }
           else if (cell.show) {
             return (
-              <TableCell style={{border:"1px solid silver", color:{fontstyle}}}>{city[cell.id]}
+              <TableCell key={`${city}[${cell.id}`} style={{border:"1px solid silver", color:{fontstyle}}}>
+                {city[cell.id]}
               </TableCell>
             )
           }
         })
         return (
-          <TableRow>
+          <TableRow key={`${city}`}>
             {rows}
           </TableRow>
         )
@@ -294,9 +296,9 @@ class DbFilesList extends React.Component {
     if (this.props.dbfiles && this.props.dbfiles.length) {
       listfiles = this.props.dbfiles.map((file) => {
         return (
-          <ListItem key={file.toString()} value={file} size="small" aria-label="Listed File">
+          <ListItem key={file} value={file} size="small" aria-label="Listed File">
             <ListItemButton onClick={() => {this.props.g(file)}}>
-              <DescriptionIcon /> <ListItemText primary={file}  />
+              <DescriptionIcon/> <ListItemText primary={file}  />
             </ListItemButton>
           </ListItem>
         )
@@ -304,14 +306,14 @@ class DbFilesList extends React.Component {
     }
     else {
       return (
-        <ListItem key={""} value={""} size="small" aria-label="No files">
+        <ListItem value={""} size="small" aria-label="No files">
           <Typography><i>No DB files</i></Typography>
         </ListItem>
       )
     }
 
     return (
-      <List>
+      <List key="omg">
         {listfiles}
       </List>
     );
@@ -359,15 +361,10 @@ const MyDatasets = () => {
         }
         else {
           console.log(res.status + ': My Datasets');
-          return {};
+          throw Error("Response not of correct format: Response does not have rows field");
         }
       })
       .then(res => {
-        if (!res || res.rows === undefined) {
-          setDbCount(NOT_A_DB);
-          setDbrows([]);
-          throw Error("Response not of correct format: Response does not have rows field");
-        }
         setDbrows({rows: res.rows, amount: res.rows.length});
         setDbCount(res.rows.length);
       })
