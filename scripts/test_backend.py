@@ -1,6 +1,6 @@
 import pytest
 import sqlite3
-from flask_main import *
+# from flask_main import *
 
 
 def test_sql_query():
