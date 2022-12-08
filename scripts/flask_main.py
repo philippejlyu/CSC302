@@ -15,80 +15,15 @@ import pandas as pd
 app = Flask(__name__, static_folder='build')
 cors = CORS(app)
 # app.config['CORS_HEADERS'] = 'Content-Type'
-
-def generateStateData(filename: str):
-    con = sqlite3.connect(filename)
-    cur = con.cursor()
-
-    addColumn = "ALTER TABLE locations ADD COLUMN isState BOOLEAN"
-    cur.execute(addColumn)
-
-
-    res = cur.execute("SELECT DISTINCT state FROM locations")
-    row = res.fetchone()
-    states = []
-    while row is not None:
-        states.append(row[0])
-        row = res.fetchone()
-
-    print(states)
-    
-
-    for state in states:
-        sumCols = ['murders', 'rapes', 'robberies', 'assaults', 'burglaries', 'larcenies', 'autoTheft', 'arsons']
-        crimeData = [0, 0, 0, 0, 0, 0, 0, 0]
-        ethnCols = ['White', 'Black', 'Asian', 'Hisp']
-        ethnData = [0, 0, 0, 0]
-        ageCols = ['12t21', '12t29', '16t24', '65up']
-        ageData = [0, 0, 0, 0]
-        for i in range(len(sumCols)):
-            res = cur.execute("SELECT SUM(%s) FROM locations WHERE state='%s'" % (sumCols[i], state))
-            row = res.fetchone()
-            crimeData[i] += row[0]
-            crimeData
-        
-        # Calculate state pop density
-        res = cur.execute("SELECT SUM(population) FROM locations WHERE state='%s'" % (state))
-        statePop = res.fetchone()[0]
-
-        res = cur.execute("SELECT SUM(LandArea) FROM locations WHERE state='%s'" % (state))
-        stateArea = res.fetchone()[0]
-
-        popDensity = statePop / stateArea
-
-        # Calculate race and age pop from percentage            
-        for i in range(len(ethnCols)):
-            res = cur.execute("SELECT racePct%s, population FROM locations WHERE state='%s'" % (ethnCols[i], state))
-            row = res.fetchone()
-            while row is not None:
-                townPop = row[1]
-                ethnData[i] += (row[0] * townPop)
-                row = res.fetchone()
-            ethnData[i] /= townPop
-        
-        for i in range(len(ageCols)):
-            res = cur.execute("SELECT agePct%s, population FROM locations WHERE state='%s'" % (ageCols[i], state))
-            row = res.fetchone()
-            while row is not None:
-                townPop = row[1]
-                ageData[i] += (row[0] * townPop)
-                row = res.fetchone()
-            ageData[i] /= townPop
-
-        # Get geojson
-        geojson = getGeoJSON("", state)
-        
-        
-        cmdstr = "INSERT INTO locations (CommunityName, isState, population, LandArea, PopDens, racePctWhite, racePctBlack, racePctAsian, racePctHisp, agePct12t21, agePct12t29, agePct16t24, agePct65up, murders, rapes, robberies, assaults, burglaries, larcenies, autoTheft, arsons, geojson) VALUES ('%s', TRUE, %d, %d, %f, %f, %f, %f, %f, %f, %f, %f, %f, %d, %d, %d, %d, %d, %d, %d, %d, '%s')" % (state, statePop, stateArea, popDensity, ethnData[0], ethnData[1], ethnData[2], ethnData[3], ageData[0], ageData[1], ageData[2], ageData[3], crimeData[0], crimeData[1], crimeData[2], crimeData[3], crimeData[4], crimeData[5], crimeData[6], crimeData[7], str(geojson))
-        print(cmdstr)
-        cur.execute(cmdstr)
-        con.commit()     
-    con.close()
+DBFOLDER = "db/"
+SERVERSIDEPORT = 3000
+GEOLIM = None
 
 def getGeoJSON(city: str, state: str) -> List:
+    print("Getting GeoJSON")
     # Get geojson
     params = {
-        "limit": 10,
+        "limit": GEOLIM,
         "format": "json",
         "polygon_geojson": 1,
         "city": city,
@@ -103,8 +38,8 @@ def getGeoJSON(city: str, state: str) -> List:
     
     try:
         data = r.json()[0]
-        lat = data['lat']
-        long = data['lon']
+        lat = float(data['lat'])
+        lon = float(data['lon'])
         geographicalJson = []
 
         if data['geojson']['type'] == 'Polygon':
@@ -129,32 +64,40 @@ def getGeoJSON(city: str, state: str) -> List:
                     else:
                         polygon_arr.append([tmp_lon, tmp_lat])
                 geographicalJson.append(polygon_arr)
-        return geographicalJson
+        return lat, lon, geographicalJson
     except Exception as e:
         print(e)
-        return [] 
+        return 0,0,[]
 
 def processDatabase(filename: str):
-    con = sqlite3.connect(filename)
+    # Command queue to avoid fetchone complications
+    commandQueue = []
+
+    # Add table columns
+    print("Generating state data from {0:s}".format(filename))
+    con = sqlite3.connect(DBFOLDER + filename)
     cur = con.cursor()
     addColumn = "ALTER TABLE locations ADD COLUMN geojson BLOB"
-    # cur.execute(addColumn)
+    cur.execute(addColumn)
     addColumn = "ALTER TABLE locations ADD COLUMN lat FLOAT"
-    # cur.execute(addColumn)
+    cur.execute(addColumn)
     addColumn = "ALTER TABLE locations ADD COLUMN lon FLOAT"
-    # cur.execute(addColumn)
-    res = cur.execute("SELECT rowid, communityName, state FROM locations")
+    cur.execute(addColumn)
+    addColumn = "ALTER TABLE locations ADD COLUMN isState BOOLEAN"
+    cur.execute(addColumn)
 
-    commandQueue = []
+    # City-level information
     idx = 0
-
+    states = []
+    res = cur.execute("SELECT rowid, communityName, state FROM locations")
     row = res.fetchone()
-    while row is not None:
+    while row is not None and (not GEOLIM or idx <= GEOLIM):
         rowid = row[0]
         dirtyCityName = row[1]
         state = row[2]
         city = None
 
+        # Known error: Location name will have suffix removed
         if 'city' in dirtyCityName:
             city = dirtyCityName.replace("city", "")
         elif 'township' in dirtyCityName:
@@ -174,31 +117,99 @@ def processDatabase(filename: str):
         
         # Now add spaces before capitals if necessary
         city = re.sub(r"(\w)([A-Z])", r"\1 \2", str(city))
-        print("%s, %s, %d", (city, state, idx))
-
+        print("{0:s}, {1:s}, {2:d}".format(city, state, idx))
         geographicalJson = getGeoJSON(city, state)
-
-        print(city)
-
+        print(geographicalJson[0], geographicalJson[1])
         # Put the sql commands in a queue because we processing them here causes issues with fetchone
-        cmdstr = "UPDATE locations SET communityName='%s', geojson='%s' WHERE rowid=%d" % (city, str(geographicalJson), rowid)
+        cmdstr = "UPDATE locations SET isState='%s', communityName='%s', lat=%.15f, lon=%.15f, geojson='%s' WHERE rowid=%d" % ("FALSE", city, geographicalJson[0], geographicalJson[1], str(geographicalJson[2]), rowid)
         commandQueue.append(cmdstr)
-        idx += 1
-        if idx >= 10:
-            break
 
-        # This is here to prevent us from DOSsing the third party webserver
+        # Next
         sleep(1)
         row = res.fetchone()
+        idx += 1
 
     for command in commandQueue:
-        # print(command)
         cur.execute(command)
+    print("Uploaded {0:d} city-level data.".format(idx))
     
+    # State-level information
+    idx = 0
+    states = []
+    sumCols = ['murders', 'rapes', 'robberies', 'assaults', 'burglaries', 'larcenies', 'autoTheft', 'arsons', 'ViolentCrimesPerPop', 'nonViolPerPop']
+    res = cur.execute("SELECT DISTINCT state FROM locations")
+    state = res.fetchone()
+    while state:
+        states.append(state[0])
+        state = res.fetchone()
+
+    for state in states:
+        crimeData = [0]*len(sumCols)
+        ethnCols = ['White', 'Black', 'Asian', 'Hisp']
+        ethnData = [0, 0, 0, 0]
+        ageCols = ['12t21', '12t29', '16t24', '65up']
+        ageData = [0, 0, 0, 0]
+        for i in range(len(sumCols)):
+            res = cur.execute("SELECT SUM(%s) FROM locations WHERE state='%s'" % (sumCols[i], state))
+            row = res.fetchone()
+            crimeData[i] += row[0]
+            
+        # Calculate state pop density
+        res = cur.execute("SELECT SUM(population) FROM locations WHERE state='%s'" % (state))
+        statePop = res.fetchone()[0]
+        if not statePop:
+            statePop = 0
+
+        res = cur.execute("SELECT SUM(LandArea) FROM locations WHERE state='%s'" % (state))
+        stateArea = res.fetchone()[0]
+        popDensity = -1
+        if stateArea:
+            popDensity = statePop / stateArea
+
+        # Calculate race and age pop from percentage            
+        for i in range(len(ethnCols)):
+            res = cur.execute("SELECT racePct%s, population FROM locations WHERE state='%s'" % (ethnCols[i], state))
+            row = res.fetchone()
+            while row is not None:
+                townPop = row[1]
+                if townPop and row[0]:
+                    ethnData[i] += (row[0] * townPop)
+                row = res.fetchone()
+            if townPop:
+                ethnData[i] /= townPop
+        
+        for i in range(len(ageCols)):
+            res = cur.execute("SELECT agePct%s, population FROM locations WHERE state='%s'" % (ageCols[i], state))
+            row = res.fetchone()
+            while row is not None:
+                townPop = row[1]
+                if townPop and row[0]:
+                    ageData[i] += (row[0] * townPop)
+                row = res.fetchone()
+            if townPop:
+                ageData[i] /= townPop
+
+        # Get geojson
+        geojson = getGeoJSON("", state)
+
+        # Insert state data
+        cmdstr = "INSERT INTO locations (CommunityName, isState, population, LandArea, PopDens, racePctWhite, racePctBlack, racePctAsian, racePctHisp, agePct12t21, agePct12t29, agePct16t24, agePct65up, murders, rapes, robberies, assaults, burglaries, larcenies, autoTheft, arsons, lat, lon, geojson) " \
+            "VALUES ('%s', TRUE, %d, %d, %f, %f, %f, %f, %f, %f, %f, %f, %f, %d, %d, %d, %d, %d, %d, %d, %d, %.15f, %.15f, '%s')" % (\
+                state, statePop, stateArea, popDensity, ethnData[0], ethnData[1], ethnData[2], ethnData[3], ageData[0], ageData[1], ageData[2], ageData[3], \
+                crimeData[0], crimeData[1], crimeData[2], crimeData[3], crimeData[4], crimeData[5], crimeData[6], crimeData[7], \
+                geojson[0], geojson[1], str(geojson[2]))
+        print(state, statePop, crimeData[6], crimeData[7], geojson[0], geojson[1])
+        cur.execute(cmdstr)
+
+        print(state)
+        idx += 1
+    
+    print("Uploaded {0:d} state-level data.".format(idx))
+
     con.commit()
     con.close()
     
-
+# BACKEND ROUTES #
 @app.route("/upload", methods=["POST"])
 @cross_origin()
 def create_database():
@@ -207,29 +218,53 @@ def create_database():
         file = request.files[file_key]
         file.save(file.filename)
         filename = file.filename[:file.filename.index('.')]
+        # Conversion
         if file.filename.endswith('.xlsx'):
             excel_file = pd.read_excel(file.filename)
             excel_file.to_csv(filename + ".csv", index=None, header=True)
             os.remove(file.filename)
-        os.system(f"sqlite-utils insert \"{filename}.db\" \"{filename}\" \"{filename+'.csv'}\" --csv -d")
+        # Perform csv extraction
+        try:
+            os.remove(DBFOLDER + filename + ".db")
+        except FileNotFoundError:
+            print("File removed or doesn't exist")
+        except OSError as e:
+            print(e)
+        cmd = f"sqlite-utils insert \"{DBFOLDER}{filename}.db\" locations \"{filename+'.csv'}\" --csv -d"
+        print("DB Creation:\t", cmd)
+        os.system(cmd)
         os.remove(filename + '.csv')
+        processDatabase(filename + ".db")
+        cmd = f"mv \"{DBFOLDER}{filename}.part\" \"{DBFOLDER}{filename}.db\""
     return "Successful"
 
 @app.route('/mapData', methods=['GET'])
 @cross_origin()
 def getMapData():
     # Parse parameters
-    print("Recieved request", request)
+    print("Recieved request", request, request.args)
     params = request.args
     if 'datasetID' in params:
         datset = params['datasetID']
+        if not datset or datset == "null":
+            return Response("Null dataset", 300)
+        
         # Get sql data
-        con = sqlite3.connect(datset)
+        con = sqlite3.connect(DBFOLDER + datset)
         cur = con.cursor()
-        if 'stateLevel' in params:
-            res = cur.execute("SELECT * FROM locations WHERE isState=TRUE")
-        else:
-            res = cur.execute("SELECT * FROM locations WHERE isState=FALSE")
+        # State level
+        try:
+            if 'stateLevel' in params:
+                res = cur.execute("SELECT * FROM locations WHERE isState=TRUE")
+            elif 'allLevel' in params:
+                res = cur.execute("SELECT * FROM locations")
+            else:
+                res = cur.execute("SELECT * FROM locations WHERE isState<>TRUE OR isState IS NULL")
+        except sqlite3.DatabaseError as e:
+            print(datset + " is not a valid .db file.")
+            return Response(datset + " not a valid .db file", 418)
+
+        # Append data
         row = res.fetchone()
         data = []
         while row is not None:
@@ -239,7 +274,9 @@ def getMapData():
 
         return jsonify({"rows": data})
     else:
-        return Response(status=400)
+        dbfiles = os.listdir(DBFOLDER)
+        print(dbfiles)
+        return jsonify(dbfiles)
         # Log this
 
 @app.route('/', defaults={'path': ''})
@@ -253,7 +290,4 @@ def serve(path):
     
 if __name__ == "__main__":
     print("The App static folder is {0:s}".format(app.static_folder));
-    app.run(debug=True, host='0.0.0.0', port=3000)
-    # print(getGeoJSON("", "TX"))
-    # processDatabase('./crime.db')
-    # generateStateData('./crime.db')
+    app.run(debug=True, host='0.0.0.0', port=SERVERSIDEPORT)

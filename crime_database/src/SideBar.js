@@ -16,9 +16,8 @@ import DatasetIcon from '@mui/icons-material/Dataset';
 import { Link } from 'react-router-dom'
 
 const SideBar = () => {
-  
   const drawerWidth = 275;
-    
+    console.log("SideBar rendered");
     return (
       <React.Fragment>
       <CssBaseline />

@@ -1,0 +1,99 @@
+created github repo
+We want to make it public
+
+invited both to github as collaborators
+
+Talk about assignment
+
+
+2 things to start off
+
+thinkg what we want the tech stack to be
+
+
+what do we want the data to be
+
+
+get data, import it into 
+
+datasette, a tool for exploring and publishing data
+we lookeda tthe demo
+
+
+
+we will use datsette for data presentation
+
+SQLite
+
+We need reasoning for each part of the tool we need 
+
+
+for the toy application, use datasette to show the data
+
+create a hard-coded example
+
+later on, we want the whole application with mvp, user can look at any piece of data and visualize whatever
+
+do we want to create our own dataset, or use something from kaggle
+
+looking at a few possibilities for data
+
+Crimes in US communities
+
+excellent dataset
+
+
+
+why we think this is interesting
+
+Seeing hotspots for crime, even visualizing them is interesting to see, 
+look into live data source for crime data, this might just be a few cities
+
+
+someone confirm with prof to see if this dataset is good
+
+
+tech stack
+
+lots of the backend stuff is taken care of datasette wise
+
+We need to get the datasource, put it in a database, use datasette to create a visualization
+
+The bulk of the work is creating the surrounding UI for the visualization, UI should have a way to upload the data, 
+
+input into sqlite database, call to the db and send to datasette 
+
+frontend where the user can upload the data, any data they want, also having a selector for what visualizaiton they want
+
+https://www.kaggle.com/datasets/michaelbryantds/crimedata
+
+
+containerization
+using docker is fine, just create a dockerfile
+
+prelim project development plan
+how we want to split up the work
+
+how that looks like for each milestone
+
+
+
+
+action items
+look more into datasette
+see what we can do, how easy it is to interface, how to cast the data, what format
+
+think about more features the app should have
+	maybe a selector for different visualizations
+
+
+for UI, we can use react, see what we can do
+
+backend is probably bulk of the work, use python probably
+
+
+https://datasette.io/for/websites
+https://datasette.io/for/data-journalism
+https://datasette.io/tools/download-tiles
+
+
