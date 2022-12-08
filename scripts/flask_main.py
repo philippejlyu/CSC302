@@ -1,6 +1,7 @@
 from flask import Flask, request, send_from_directory, jsonify, Response
 from flask_cors import CORS, cross_origin
 import os
+import pathlib
 import json
 import re
 import requests
@@ -214,6 +215,18 @@ def processDatabase(filename: str):
 @cross_origin()
 def create_database():
     files = list(request.files.keys())
+
+    # Eliminate all partial files
+    for rmfile in os.listdir(DBFOLDER):
+        try:
+            if pathlib.Path(rmfile).suffix != ".db":
+                os.remove(DBFOLDER + rmfile)
+                print('\tRemoved ' + rmfile)
+        except FileNotFoundError:
+            print("\tFile %s removed or doesn't exist" % (rmfile))
+        except OSError as e:
+            print(e)
+
     for file_key in files: 
         file = request.files[file_key]
         file.save(file.filename)
@@ -230,12 +243,39 @@ def create_database():
             print("File removed or doesn't exist")
         except OSError as e:
             print(e)
-        cmd = f"sqlite-utils insert \"{DBFOLDER}{filename}.db\" locations \"{filename+'.csv'}\" --csv -d"
+
+        cmd = f"sqlite-utils insert \"{DBFOLDER}{filename}.part\" locations \"{filename+'.csv'}\" --csv -d"
         print("DB Creation:\t", cmd)
         os.system(cmd)
+        # These are all columns involved in compiling state data 
+        cmd = [
+        #     f"sqlite-utils add-column \"{DBFOLDER}{filename}.db\" locations communityName text",
+        #     f"sqlite-utils add-column \"{DBFOLDER}{filename}.db\" locations state text",
+        #     f"sqlite-utils add-column \"{DBFOLDER}{filename}.db\" locations population integer",
+        #     f"sqlite-utils add-column \"{DBFOLDER}{filename}.db\" locations LandArea float",
+        #     f"sqlite-utils add-column \"{DBFOLDER}{filename}.db\" locations PopDens float",
+        #     f"sqlite-utils add-column \"{DBFOLDER}{filename}.db\" locations racePctWhite float",
+        #     f"sqlite-utils add-column \"{DBFOLDER}{filename}.db\" locations racePctBlack float",
+        #     f"sqlite-utils add-column \"{DBFOLDER}{filename}.db\" locations racePctAsian float",
+        #     f"sqlite-utils add-column \"{DBFOLDER}{filename}.db\" locations racePctHisp float",
+        #     f"sqlite-utils add-column \"{DBFOLDER}{filename}.db\" locations agePct12t21 float",
+        #     f"sqlite-utils add-column \"{DBFOLDER}{filename}.db\" locations agePct12t29 float",
+        #     f"sqlite-utils add-column \"{DBFOLDER}{filename}.db\" locations agePct16t24 float",
+        #     f"sqlite-utils add-column \"{DBFOLDER}{filename}.db\" locations agePct65up float",
+        #     f"sqlite-utils add-column \"{DBFOLDER}{filename}.db\" locations murders integer",
+        #     f"sqlite-utils add-column \"{DBFOLDER}{filename}.db\" locations rapes integer",
+        #     f"sqlite-utils add-column \"{DBFOLDER}{filename}.db\" locations robberies integer",
+        #     f"sqlite-utils add-column \"{DBFOLDER}{filename}.db\" locations assaults integer",
+        #     f"sqlite-utils add-column \"{DBFOLDER}{filename}.db\" locations burglaries integer",
+        #     f"sqlite-utils add-column \"{DBFOLDER}{filename}.db\" locations larcenies integer",
+        #     f"sqlite-utils add-column \"{DBFOLDER}{filename}.db\" locations autoTheft integer",
+        #     f"sqlite-utils add-column \"{DBFOLDER}{filename}.db\" locations arsons integer"
+        ]
+        for k in cmd:
+            os.system(k)
         os.remove(filename + '.csv')
-        processDatabase(filename + ".db")
-        cmd = f"mv \"{DBFOLDER}{filename}.part\" \"{DBFOLDER}{filename}.db\""
+        processDatabase(filename + ".part")
+        os.rename(DBFOLDER + filename + ".part",  DBFOLDER + filename + ".db")
     return "Successful"
 
 @app.route('/mapData', methods=['GET'])
@@ -261,17 +301,22 @@ def getMapData():
             else:
                 res = cur.execute("SELECT * FROM locations WHERE isState<>TRUE OR isState IS NULL")
         except sqlite3.DatabaseError as e:
-            print(datset + " is not a valid .db file.")
-            return Response(datset + " not a valid .db file", 418)
+            print(datset + " is not a valid .db file. (%s)" % repr(e))
+            print(e)
+            return Response(datset + " not a valid .db file. (%s)" % repr(e), 418)
 
         # Append data
         row = res.fetchone()
+        attrs = list(map(lambda x : x[0], res.description))
         data = []
         while row is not None:
-            data.append(row)
+            data.append(dict(zip(attrs, row)))
             row = res.fetchone()
-        con.close()
+        
+        # Add cols info
+        res = cur.execute("")
 
+        con.close()
         return jsonify({"rows": data})
     else:
         dbfiles = os.listdir(DBFOLDER)

@@ -15,7 +15,8 @@ import BarChartIcon from '@mui/icons-material/BarChart';
 import DatasetIcon from '@mui/icons-material/Dataset';
 import { Link } from 'react-router-dom'
 
-const SideBar = () => {
+const SideBar = (props) => {
+  const [message, setMessage] = React.useState("By Falcon, Piyush, Mack");
   const drawerWidth = 275;
     console.log("SideBar rendered");
     return (
@@ -64,6 +65,9 @@ const SideBar = () => {
             </ListItem>
         </List>
         <Divider />
+        <Typography variant="subtitle1">
+          {message}
+        </Typography>
       </Drawer>
       </React.Fragment>
     )
