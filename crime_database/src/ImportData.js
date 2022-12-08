@@ -54,6 +54,7 @@ const ImportData = () => {
       let el = document.getElementById("upload-button");
       let status = document.getElementById("status");
       status.setAttribute("id", "status");
+      status.style.color = 'gray';
       status.innerHTML = "Uploading...";
       if (document.getElementById("status") == null) {
         ReactDOM.findDOMNode(el).after(status);

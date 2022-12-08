@@ -17,7 +17,7 @@ cors = CORS(app)
 # app.config['CORS_HEADERS'] = 'Content-Type'
 DBFOLDER = "db/"
 SERVERSIDEPORT = 3000
-GEOLIM = 400
+GEOLIM = None
 
 def getGeoJSON(city: str, state: str) -> List:
     print("Getting GeoJSON")
@@ -91,7 +91,7 @@ def processDatabase(filename: str):
     states = []
     res = cur.execute("SELECT rowid, communityName, state FROM locations")
     row = res.fetchone()
-    while row is not None and (idx <= GEOLIM or not GEOLIM):
+    while row is not None and (not GEOLIM or idx <= GEOLIM):
         rowid = row[0]
         dirtyCityName = row[1]
         state = row[2]
@@ -136,7 +136,7 @@ def processDatabase(filename: str):
     # State-level information
     idx = 0
     states = []
-    sumCols = ['murders', 'rapes', 'robberies', 'assaults', 'burglaries', 'larcenies', 'autoTheft', 'arsons']
+    sumCols = ['murders', 'rapes', 'robberies', 'assaults', 'burglaries', 'larcenies', 'autoTheft', 'arsons', 'ViolentCrimesPerPop', 'nonViolPerPop']
     res = cur.execute("SELECT DISTINCT state FROM locations")
     state = res.fetchone()
     while state:
@@ -144,7 +144,7 @@ def processDatabase(filename: str):
         state = res.fetchone()
 
     for state in states:
-        crimeData = [0, 0, 0, 0, 0, 0, 0, 0]
+        crimeData = [0]*len(sumCols)
         ethnCols = ['White', 'Black', 'Asian', 'Hisp']
         ethnData = [0, 0, 0, 0]
         ageCols = ['12t21', '12t29', '16t24', '65up']
@@ -157,11 +157,14 @@ def processDatabase(filename: str):
         # Calculate state pop density
         res = cur.execute("SELECT SUM(population) FROM locations WHERE state='%s'" % (state))
         statePop = res.fetchone()[0]
+        if not statePop:
+            statePop = 0
 
         res = cur.execute("SELECT SUM(LandArea) FROM locations WHERE state='%s'" % (state))
         stateArea = res.fetchone()[0]
-
-        popDensity = statePop / stateArea
+        popDensity = -1
+        if stateArea:
+            popDensity = statePop / stateArea
 
         # Calculate race and age pop from percentage            
         for i in range(len(ethnCols)):
@@ -169,18 +172,22 @@ def processDatabase(filename: str):
             row = res.fetchone()
             while row is not None:
                 townPop = row[1]
-                ethnData[i] += (row[0] * townPop)
+                if townPop and row[0]:
+                    ethnData[i] += (row[0] * townPop)
                 row = res.fetchone()
-            ethnData[i] /= townPop
+            if townPop:
+                ethnData[i] /= townPop
         
         for i in range(len(ageCols)):
             res = cur.execute("SELECT agePct%s, population FROM locations WHERE state='%s'" % (ageCols[i], state))
             row = res.fetchone()
             while row is not None:
                 townPop = row[1]
-                ageData[i] += (row[0] * townPop)
+                if townPop and row[0]:
+                    ageData[i] += (row[0] * townPop)
                 row = res.fetchone()
-            ageData[i] /= townPop
+            if townPop:
+                ageData[i] /= townPop
 
         # Get geojson
         geojson = getGeoJSON("", state)

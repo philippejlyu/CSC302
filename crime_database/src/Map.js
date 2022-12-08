@@ -93,6 +93,7 @@ const Map = (props) => {
                         "population": mapData.rows[i][4],
                         "populationDensity": mapData.rows[i][120],
                         "murders": mapData.rows[i][128],
+                        "rapes": mapData.rows[i][130],
                         "robberies": mapData.rows[i][132],
                         "assaults": mapData.rows[i][134],
                         "burglaries": mapData.rows[i][136],
@@ -134,6 +135,7 @@ const Map = (props) => {
                     "population": mapData.rows[i][4],
                     "populationDensity": mapData.rows[i][120],
                     "murders": mapData.rows[i][128],
+                    "rapes": mapData.rows[i][130],
                     "robberies": mapData.rows[i][132],
                     "assaults": mapData.rows[i][134],
                     "burglaries": mapData.rows[i][136],
@@ -149,6 +151,55 @@ const Map = (props) => {
         }).catch(error => {
             console.warn(error);
         });
+    }
+
+    const generatePolygon = (location, stats=["murders",'rapes',"robberies","assaults","burglaries","larcenies","autoTheft","arson"]) => {
+        let violentPerPop = 0;
+        for (var k = 0; k < stats.length && violentPerPop !== NaN; k++) {
+            violentPerPop += location[stats[k]];
+            if (!location[stats[k]] && location[stats[k]] !== 0) {
+                violentPerPop = NaN;
+            }
+        }
+        violentPerPop /= location.population;
+        
+        var purpleOptions = {}
+        if (isNaN(violentPerPop)) {
+            purpleOptions = { fillColor: 'gray', color: 'gray' }
+        }
+        else if (violentPerPop < 0.03) {
+            purpleOptions = { fillColor: 'green', color: 'green' }
+        }
+        else if (violentPerPop >= 0.03 && violentPerPop < 0.05) {
+            purpleOptions = { fillColor: 'yellow', color: '#fcdb03' }
+        }
+        else if (violentPerPop >= 0.05 && violentPerPop < 0.10) {
+            purpleOptions = { fillColor: 'orange', color: 'orange' }
+        }
+        else if (violentPerPop >= 0.10) {
+            purpleOptions = { fillColor: 'red', color: 'red' }
+        }
+
+        const polygon = JSON.parse(location.boundingBox);
+
+        return (<Polygon pathOptions={purpleOptions} positions={polygon} key={location.id}>
+            <Popup>
+                <center><b>{location.cityname}</b></center><br />
+                <b>Population:</b> {location.population}<br />
+                <b>Population Density:</b> {location.populationDensity}<br />
+                <table>
+                    <tr><td><b>Murders:</b></td><td> {location.murders} ({!location.murders && location.murders !== 0 ? "N/A" :  (location.murders/location.population*100000).toFixed(2)}/100000)</td></tr>
+                    <tr><td><b>Rapes:</b></td><td> {location.rapes} ({!location.rapes && location.rapes !== 0 ? "N/A" :  (location.rapes/location.population*100000).toFixed(2)}/100000)</td></tr>
+                    <tr><td><b>Robberies:</b></td><td> {location.robberies} ({!location.robberies && location.robberies !== 0 ? "N/A" :  (location.robberies/location.population*100000).toFixed(2)}/100000)</td></tr>
+                    <tr><td><b>Assaults:</b></td><td> {location.assaults} ({!location.assaults && location.assaults !== 0 ? "N/A" :  (location.assaults/location.population*100000).toFixed(2)}/100000)</td></tr>
+                    <tr><td><b>Burglaries:</b></td><td> {location.burglaries} ({!location.burglaries && location.burglaries !== 0 ? "N/A" :  (location.burglaries/location.population*100000).toFixed(2)}/100000)</td></tr>
+                    <tr><td><b>Larcenies:</b></td><td> {location.larcenies} ({!location.larcenies && location.larcenies !== 0 ? "N/A" :  (location.larcenies/location.population*100000).toFixed(2)}/100000)</td></tr>
+                    <tr><td><b>Auto Theft:</b></td><td> {location.autoTheft} ({!location.autoTheft && location.autoTheft !== 0 ? "N/A" :  (location.autoTheft/location.population*100000).toFixed(2)}/100000)</td></tr>
+                    <tr><td><b>Arsons:</b></td><td> {location.arson} ({!location.arson && location.arson !== 0 ? "N/A" :  (location.arson/location.population*100000).toFixed(2)}/100000)</td></tr>
+                </table>
+            </Popup>
+
+        </Polygon>)
     }
 
     if (dataset != props.dbFiles) {
@@ -173,73 +224,12 @@ const Map = (props) => {
             {/* City data */}
             {loaded && !showStates && markers && markers.length > 0 &&
                 markers.map((location) => {
-                    let violentPerPop = (location.murders + location.assaults) / location.population;
-                    var purpleOptions = {}
-                    if (violentPerPop < 0.003) {
-                        purpleOptions = { fillColor: 'green', color: 'green' }
-                    }
-                    else if (violentPerPop >= 0.003 && violentPerPop < 0.005) {
-                        purpleOptions = { fillColor: 'yellow', color: '#fcdb03' }
-                    }
-                    else if (violentPerPop >= 0.005 && violentPerPop < 0.007) {
-                        purpleOptions = { fillColor: 'orange', color: 'orange' }
-                    }
-                    else if (violentPerPop >= 0.007) {
-                        purpleOptions = { fillColor: 'red', color: 'red' }
-                    }
-
-                    const polygon = JSON.parse(location.boundingBox);
-
-                    return (<Polygon pathOptions={purpleOptions} positions={polygon} key={location.id}>
-                        <Popup>
-                            <center><b>{location.cityname}</b></center><br></br>
-                            Population: {location.population}<br></br>
-                            Population Density: {location.populationDensity}<br></br>
-                            Murders: {location.murders}<br></br>
-                            Robberies: {location.robberies}<br></br>
-                            Assaults: {location.assaults}<br></br>
-                            Burglaries: {location.burglaries}<br></br>
-                            Larcenies: {location.larcenies}<br></br>
-                            Auto Theft: {location.autoTheft}<br></br>
-                            Arsons: {location.arson}
-                        </Popup>
-
-                    </Polygon>)
-
+                    return generatePolygon(location);
                 })}
             {/* State data */}
             {loaded && showStates && stateMarkers &&
                 stateMarkers.map((location) => {
-                    let violentPerPop = (location.murders + location.assaults) / location.population;
-                    var purpleOptions = {}
-                    if (violentPerPop < 0.003) {
-                        purpleOptions = { fillColor: 'green', color: 'green' }
-                    }
-                    else if (violentPerPop >= 0.003 && violentPerPop < 0.005) {
-                        purpleOptions = { fillColor: 'yellow', color: '#fcdb03' }
-                    }
-                    else if (violentPerPop >= 0.005 && violentPerPop < 0.007) {
-                        purpleOptions = { fillColor: 'orange', color: 'orange' }
-                    }
-                    else if (violentPerPop >= 0.007) {
-                        purpleOptions = { fillColor: 'red', color: 'red' }
-                    }
-                    const polygon = JSON.parse(location.boundingBox);
-
-                    return (<Polygon pathOptions={purpleOptions} positions={polygon} key={location.id}>
-                        <Popup>
-                            <center><b>{location.cityname}</b></center><br></br>
-                            Population: {location.population}<br></br>
-                            Population Density: {location.populationDensity}<br></br>
-                            Murders: {location.murders}<br></br>
-                            Robberies: {location.robberies}<br></br>
-                            Assaults: {location.assaults}<br></br>
-                            Burglaries: {location.burglaries}<br></br>
-                            Larcenies: {location.larcenies}<br></br>
-                            Auto Theft: {location.autoTheft}<br></br>
-                            Arsons: {location.arson}
-                        </Popup>
-                    </Polygon>)
+                    return generatePolygon(location);
                 })}
         </MapContainer>
     );
