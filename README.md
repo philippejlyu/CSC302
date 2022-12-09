@@ -85,11 +85,14 @@ For goal 5, our goal was to allow the user to input a dataset with the same colu
 When compiling the docker container, our js compilation test runs to ensure that our frontend can be successfully copiled
 
 ## Python tests
-To run unit tests, cd to the scripts directory and run the following command
-Follow instructions to build docker container
+To run unit tests, attach an interactive shell to the previously built docker repository.
+To do that, run the following command
 ```
 docker run -it <container sha> bash
-py.test
+```
+To run our testing, run the following shell script
+```
+./run_tests.sh
 ```
 ## Code linting
 A code linter runs to ensure that our code meets industry standards
