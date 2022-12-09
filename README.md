@@ -1,6 +1,7 @@
 # Introduction
 
-To find our **meeting notes**, please see the meeting notes folder<br />
+To find our **meeting notes**, please see the notes folder<br />
+To find our **blameless postmortem**, please see our meeting notes notes<br />
 To find our project development plan and tech stack description, please see **CSC302 A1.pdf**<br />
 To find our data, please see the **data** folder<br />
 To find our scripts, please see the **scripts** folder<br />
