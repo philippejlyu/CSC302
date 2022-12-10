@@ -403,7 +403,6 @@ The coloring is determined by number of crimes per 100,000
 * `< 500`: Yellow
 * `< 700`: Orange
 * `> 700`: Red
-* If there are any missing information (a nonzero falsy value), the polygon is colored gray to prevent underreporting. Check these as well!
 
 ![Visualize Red](notes/Screenshots/AppVisualizeTristate.png)
 <details><summary>Click for more screenshots</summary>
