@@ -32,7 +32,7 @@ git clone https://github.com/philippejlyu/CSC302.git
 
 The size of the cloned repository will be more than 80 MB, due to the 50MB size of the `crime.db` sample database (data folder is at 1.6MB). The `node_modules` folder will clock in at 318.4 MB.
 
-##Running on Docker
+## Running on Docker
 Navigate to the root directory of the cloned repository locally (folder named `CSC302`) and execute the following command in your terminal to run the application in a browser window. The pip packages will be installed by this shell file in addition to running the webserver.
 
 Precondition: Docker must be installed on your computer. You may need to use sudo if you are running on Linux. The Docker image will be at least 2GB in total, and 1493 npm packages are utilized. There are six high security vulnerabilities.
