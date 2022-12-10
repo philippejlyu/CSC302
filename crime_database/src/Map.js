@@ -153,51 +153,30 @@ const Map = (props) => {
         });
     }
 
-    const generatePolygon = (location, isState) => {
-        // let violentPerPop = 0;
-        // for (var k = 0; k < stats.length && violentPerPop !== NaN; k++) {
-        //     violentPerPop += location[stats[k]];
-        //     if (!location[stats[k]] && location[stats[k]] !== 0) {
-        //         violentPerPop = NaN;
-        //     }
-        // }
-        // violentPerPop /= location.population;
-        let violentPerPop = (location.murders + location.assaults)/location.population;
-        console.log(isState)
-        console.log('Is state')
-        if (isState) {
-            var purpleOptions = {}
-            if (isNaN(violentPerPop)) {
-                purpleOptions = { fillColor: 'gray', color: 'gray' }
+    const generatePolygon = (location, stats=["murders","rapes","assaults"]) => {
+        let violent = 0;
+        for (var k = 0; k < stats.length && violent !== NaN; k++) {
+            violent += location[stats[k]];
+            if (!location[stats[k]] && location[stats[k]] !== 0) {
+                violent = NaN;
             }
-            else if(violentPerPop < 0.003){
-                purpleOptions = { fillColor: 'green', color:'green' }
-            }
-            else if(violentPerPop >= 0.003 && violentPerPop < 0.005){
-                purpleOptions = { fillColor: 'yellow', color: '#fcdb03'}
-            }
-            else if(violentPerPop >= 0.005 && violentPerPop < 0.007){
-                purpleOptions = { fillColor: 'orange', color: 'orange' }
-            }
-            else if(violentPerPop >= 0.007){
-                purpleOptions = { fillColor: 'red', color: 'red' }
-            }
-        } else {
-            if (isNaN(violentPerPop)) {
-                purpleOptions = { fillColor: 'gray', color: 'gray' }
-            }
-            else if(violentPerPop < 0.003){
-                purpleOptions = { fillColor: 'green', color:'green' }
-            }
-            else if(violentPerPop >= 0.003 && violentPerPop < 0.005){
-                purpleOptions = { fillColor: 'yellow', color: '#fcdb03'}
-            }
-            else if(violentPerPop >= 0.005 && violentPerPop < 0.007){
-                purpleOptions = { fillColor: 'orange', color: 'orange' }
-            }
-            else if(violentPerPop >= 0.007){
-                purpleOptions = { fillColor: 'red', color: 'red' }
-            }
+        }
+        var violentPerPop = violent / location.population;
+        var purpleOptions = {}
+        if (isNaN(violentPerPop)) {
+            purpleOptions = { fillColor: 'gray', color: 'gray' }
+        }
+        else if(violentPerPop < 0.003){
+            purpleOptions = { fillColor: 'green', color:'green' }
+        }
+        else if(violentPerPop >= 0.003 && violentPerPop < 0.005){
+            purpleOptions = { fillColor: 'yellow', color: '#fcdb03'}
+        }
+        else if(violentPerPop >= 0.005 && violentPerPop < 0.007){
+            purpleOptions = { fillColor: 'orange', color: 'orange' }
+        }
+        else if(violentPerPop >= 0.007){
+            purpleOptions = { fillColor: 'red', color: 'red' }
         }
 
         const polygon = JSON.parse(location.boundingBox);
@@ -210,8 +189,8 @@ const Map = (props) => {
                 <table>
                     <tr><td><b>Murders:</b></td><td> {location.murders} ({!location.murders && location.murders !== 0 ? "N/A" :  (location.murders/location.population*100000).toFixed(2)}/100000)</td></tr>
                     <tr><td><b>Rapes:</b></td><td> {location.rapes} ({!location.rapes && location.rapes !== 0 ? "N/A" :  (location.rapes/location.population*100000).toFixed(2)}/100000)</td></tr>
+                    <tr><td><b><i>Total Violent:</i></b></td><td><i>{violent}</i> (<i>{!violentPerPop && violentPerPop !== 0 ? "N/A" :  (violentPerPop*100000).toFixed(2)}</i>/100000)</td></tr>
                     <tr><td><b>Robberies:</b></td><td> {location.robberies} ({!location.robberies && location.robberies !== 0 ? "N/A" :  (location.robberies/location.population*100000).toFixed(2)}/100000)</td></tr>
-                    <tr><td><b>Assaults:</b></td><td> {location.assaults} ({!location.assaults && location.assaults !== 0 ? "N/A" :  (location.assaults/location.population*100000).toFixed(2)}/100000)</td></tr>
                     <tr><td><b>Burglaries:</b></td><td> {location.burglaries} ({!location.burglaries && location.burglaries !== 0 ? "N/A" :  (location.burglaries/location.population*100000).toFixed(2)}/100000)</td></tr>
                     <tr><td><b>Larcenies:</b></td><td> {location.larcenies} ({!location.larcenies && location.larcenies !== 0 ? "N/A" :  (location.larcenies/location.population*100000).toFixed(2)}/100000)</td></tr>
                     <tr><td><b>Auto Theft:</b></td><td> {location.autoTheft} ({!location.autoTheft && location.autoTheft !== 0 ? "N/A" :  (location.autoTheft/location.population*100000).toFixed(2)}/100000)</td></tr>
@@ -242,15 +221,13 @@ const Map = (props) => {
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             />
             {/* City data */}
-            {loaded && !showStates && markers && markers.length > 0 &&
-                markers.map((location) => {
-                    return generatePolygon(location, false);
-                })}
+            {loaded && !showStates && markers && markers.length > 0 &&markers.map((location) => {
+                return generatePolygon(location);
+            })}
             {/* State data */}
-            {loaded && showStates && stateMarkers &&
-                stateMarkers.map((location) => {
-                    return generatePolygon(location, true);
-                })}
+            {loaded && showStates && stateMarkers && stateMarkers.map((location) => {
+                return generatePolygon(location);
+            })}
         </MapContainer>
     );
 }
