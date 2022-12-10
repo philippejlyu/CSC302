@@ -153,31 +153,51 @@ const Map = (props) => {
         });
     }
 
-    const generatePolygon = (location, stats=["murders",'rapes',"robberies","assaults","burglaries","larcenies","autoTheft","arson"]) => {
-        let violentPerPop = 0;
-        for (var k = 0; k < stats.length && violentPerPop !== NaN; k++) {
-            violentPerPop += location[stats[k]];
-            if (!location[stats[k]] && location[stats[k]] !== 0) {
-                violentPerPop = NaN;
+    const generatePolygon = (location, isState) => {
+        // let violentPerPop = 0;
+        // for (var k = 0; k < stats.length && violentPerPop !== NaN; k++) {
+        //     violentPerPop += location[stats[k]];
+        //     if (!location[stats[k]] && location[stats[k]] !== 0) {
+        //         violentPerPop = NaN;
+        //     }
+        // }
+        // violentPerPop /= location.population;
+        let violentPerPop = (location.murders + location.assaults)/location.population;
+        console.log(isState)
+        console.log('Is state')
+        if (isState) {
+            var purpleOptions = {}
+            if (isNaN(violentPerPop)) {
+                purpleOptions = { fillColor: 'gray', color: 'gray' }
             }
-        }
-        violentPerPop /= location.population;
-        
-        var purpleOptions = {}
-        if (isNaN(violentPerPop)) {
-            purpleOptions = { fillColor: 'gray', color: 'gray' }
-        }
-        else if (violentPerPop < 0.03) {
-            purpleOptions = { fillColor: 'green', color: 'green' }
-        }
-        else if (violentPerPop >= 0.03 && violentPerPop < 0.05) {
-            purpleOptions = { fillColor: 'yellow', color: '#fcdb03' }
-        }
-        else if (violentPerPop >= 0.05 && violentPerPop < 0.10) {
-            purpleOptions = { fillColor: 'orange', color: 'orange' }
-        }
-        else if (violentPerPop >= 0.10) {
-            purpleOptions = { fillColor: 'red', color: 'red' }
+            else if(violentPerPop < 0.003){
+                purpleOptions = { fillColor: 'green', color:'green' }
+            }
+            else if(violentPerPop >= 0.003 && violentPerPop < 0.005){
+                purpleOptions = { fillColor: 'yellow', color: '#fcdb03'}
+            }
+            else if(violentPerPop >= 0.005 && violentPerPop < 0.007){
+                purpleOptions = { fillColor: 'orange', color: 'orange' }
+            }
+            else if(violentPerPop >= 0.007){
+                purpleOptions = { fillColor: 'red', color: 'red' }
+            }
+        } else {
+            if (isNaN(violentPerPop)) {
+                purpleOptions = { fillColor: 'gray', color: 'gray' }
+            }
+            else if(violentPerPop < 0.003){
+                purpleOptions = { fillColor: 'green', color:'green' }
+            }
+            else if(violentPerPop >= 0.003 && violentPerPop < 0.005){
+                purpleOptions = { fillColor: 'yellow', color: '#fcdb03'}
+            }
+            else if(violentPerPop >= 0.005 && violentPerPop < 0.007){
+                purpleOptions = { fillColor: 'orange', color: 'orange' }
+            }
+            else if(violentPerPop >= 0.007){
+                purpleOptions = { fillColor: 'red', color: 'red' }
+            }
         }
 
         const polygon = JSON.parse(location.boundingBox);
@@ -224,12 +244,12 @@ const Map = (props) => {
             {/* City data */}
             {loaded && !showStates && markers && markers.length > 0 &&
                 markers.map((location) => {
-                    return generatePolygon(location);
+                    return generatePolygon(location, false);
                 })}
             {/* State data */}
             {loaded && showStates && stateMarkers &&
                 stateMarkers.map((location) => {
-                    return generatePolygon(location);
+                    return generatePolygon(location, true);
                 })}
         </MapContainer>
     );

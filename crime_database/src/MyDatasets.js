@@ -393,7 +393,7 @@ const MyDatasets = () => {
   }
 
   useEffect(() => { 
-    document.title = `My Datasets (${count})`;
+    document.title = `My Datasets`;
     console.log(`Loaded MyDatasets page (${dbCount})`)
     if (!loaded) {
       fetchDBFiles();

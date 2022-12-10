@@ -4,20 +4,20 @@ import sqlite3
 
 # Test cases for Sample
 def test_sql_query():
-    con = sqlite3.connect("./db/sample.db")
+    con = sqlite3.connect("./db/crime.db")
     cur = con.cursor()
     res = cur.execute("SELECT count(*) FROM locations WHERE isState = 1")
 
     assert res.fetchone()[0] == 48
 
 def test_sql_query2():
-    con = sqlite3.connect("./db/sample.db")
+    con = sqlite3.connect("./db/crime.db")
     cur = con.cursor()
     res = cur.execute("SELECT count(*) FROM locations WHERE state = 'CA'")
     assert res.fetchone()[0] == 279
 
 def test_sql_query3():
-    con = sqlite3.connect("./db/sample.db")
+    con = sqlite3.connect("./db/crime.db")
     cur = con.cursor()
     res = cur.execute("SELECT count(*) FROM locations WHERE state = 'CA' AND communityName = 'Los Angeles'")
     assert res.fetchone()[0] == 1

@@ -44,7 +44,7 @@ const Visualize = () => {
   } 
   
   useEffect(() => { document.title = `Visualization (${count})`;
-    document.title = `My Datasets (${count})`;
+    document.title = `Map View`;
     console.info("Visualize rerender");
     if (!loaded) {
       fetchDBFiles();
