@@ -62,6 +62,7 @@ const Visualize = () => {
             id="demo-simple-select"
             value={!dataset ? "" : dataset}
             label="Dataset Selection"
+            style={{maxHeight: "50px"}}
             onChange={(event)=>{setDataset(event.target.value); console.info(dataset); console.log(rows)}}
           >
           {rows.map((name) => (

@@ -83,13 +83,13 @@ const Map = (props) => {
                     var lon = mapData.rows[i].lon;
                     var geo = mapData.rows[i].geojson;
                     if (!lat || !lon || !geo) {
-                        console.error(`Error processing mapdata information: ${mapData.rows[i].communityName} ; ${lat} ; ${lon} ; ${!geo ? "[0]" : "[" + geo.length + "]"}`);
+                        console.error(`Error processing mapdata information: ${mapData.rows[i].communityName} ; ${lat} ; ${lon} ; ${!geo ? "[0]" : "[" + geo + "]"}`);
                         continue;
                     }
                     locations.push({
                         "lat": mapData.rows[i].lat, // Must be present
                         "lon": mapData.rows[i].lon, // Must be present
-                        "cityname": mapData.rows[i].cityname,
+                        "cityname": mapData.rows[i].communityName,
                         "population": mapData.rows[i].population,
                         "populationDensity": mapData.rows[i].populationDensity,
                         "murders": mapData.rows[i].murders,
@@ -131,7 +131,7 @@ const Map = (props) => {
                 stateLocations.push({
                     "lat": mapData.rows[i].lat,
                     "lon": mapData.rows[i].lon,
-                    "cityname": mapData.rows[i].cityname,
+                    "cityname": mapData.rows[i].communityName,
                     "population": mapData.rows[i].population,
                     "populationDensity": mapData.rows[i].populationDensity,
                     "murders": mapData.rows[i].murders,
@@ -187,14 +187,15 @@ const Map = (props) => {
                 <b>Population:</b> {location.population}<br />
                 <b>Population Density:</b> {location.populationDensity}<br />
                 <table>
-                    <tr><td><b>Murders:</b></td><td> {location.murders} ({!location.murders && location.murders !== 0 ? "N/A" :  (location.murders/location.population*100000).toFixed(2)}/100000)</td></tr>
-                    <tr><td><b>Rapes:</b></td><td> {location.rapes} ({!location.rapes && location.rapes !== 0 ? "N/A" :  (location.rapes/location.population*100000).toFixed(2)}/100000)</td></tr>
-                    <tr><td><b><i>Total Violent:</i></b></td><td><i>{violent}</i> (<i>{!violentPerPop && violentPerPop !== 0 ? "N/A" :  (violentPerPop*100000).toFixed(2)}</i>/100000)</td></tr>
-                    <tr><td><b>Robberies:</b></td><td> {location.robberies} ({!location.robberies && location.robberies !== 0 ? "N/A" :  (location.robberies/location.population*100000).toFixed(2)}/100000)</td></tr>
-                    <tr><td><b>Burglaries:</b></td><td> {location.burglaries} ({!location.burglaries && location.burglaries !== 0 ? "N/A" :  (location.burglaries/location.population*100000).toFixed(2)}/100000)</td></tr>
-                    <tr><td><b>Larcenies:</b></td><td> {location.larcenies} ({!location.larcenies && location.larcenies !== 0 ? "N/A" :  (location.larcenies/location.population*100000).toFixed(2)}/100000)</td></tr>
-                    <tr><td><b>Auto Theft:</b></td><td> {location.autoTheft} ({!location.autoTheft && location.autoTheft !== 0 ? "N/A" :  (location.autoTheft/location.population*100000).toFixed(2)}/100000)</td></tr>
-                    <tr><td><b>Arsons:</b></td><td> {location.arson} ({!location.arson && location.arson !== 0 ? "N/A" :  (location.arson/location.population*100000).toFixed(2)}/100000)</td></tr>
+                    <tr><td><b>Murders:</b></td><td>    {location.murders}        ({!location.murders    && location.murders !== 0 ? "N/A" :    (location.murders/location.population*100000).toFixed(2)}/100000)</td></tr>
+                    <tr><td><b>Rapes:</b></td><td>      {location.rapes}          ({!location.rapes      && location.rapes !== 0 ? "N/A" :      (location.rapes/location.population*100000).toFixed(2)}/100000)</td></tr>
+                    <tr><td><b>Assaults:</b></td><td>   {location.assaults}       ({!location.assaults   && location.assaults !== 0 ? "N/A" :   (location.assaults/location.population*100000).toFixed(2)}/100000)</td></tr>
+                    <tr><td><b><i>Total Violent:</i></b></td><td><i>{violent}</i> (<i>{!violentPerPop    && violentPerPop !== 0 ? "N/A" :       (violentPerPop*100000).toFixed(2)}</i>/100000)</td></tr>
+                    <tr><td><b>Robberies:</b></td><td>  {location.robberies}      ({!location.robberies  && location.robberies !== 0 ? "N/A" :  (location.robberies/location.population*100000).toFixed(2)}/100000)</td></tr>
+                    <tr><td><b>Burglaries:</b></td><td> {location.burglaries}     ({!location.burglaries && location.burglaries !== 0 ? "N/A" : (location.burglaries/location.population*100000).toFixed(2)}/100000)</td></tr>
+                    <tr><td><b>Larcenies:</b></td><td>  {location.larcenies}      ({!location.larcenies  && location.larcenies !== 0 ? "N/A" :  (location.larcenies/location.population*100000).toFixed(2)}/100000)</td></tr>
+                    <tr><td><b>Auto Theft:</b></td><td> {location.autoTheft}      ({!location.autoTheft  && location.autoTheft !== 0 ? "N/A" :  (location.autoTheft/location.population*100000).toFixed(2)}/100000)</td></tr>
+                    <tr><td><b>Arsons:</b></td><td>     {location.arson}          ({!location.arson      && location.arson !== 0 ? "N/A" :      (location.arson/location.population*100000).toFixed(2)}/100000)</td></tr>
                 </table>
             </Popup>
 

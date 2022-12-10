@@ -1,6 +1,6 @@
 import pytest
 import sqlite3
-# from flask_main import *
+from flask_main import *
 
 # Test cases for Sample
 def test_sql_query():
@@ -24,7 +24,7 @@ def test_sql_query3():
 
 # Pathological test cases
 def test_switch():
-    con = sqlite3.connect("./db/sample.db")
+    con = sqlite3.connect("./db/virginias.db")
     cur = con.cursor()
     res = cur.execute("SELECT count(*) FROM locations WHERE state = 'VA')
     assert res.fetchone()[0] == 33

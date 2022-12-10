@@ -313,7 +313,7 @@ class DbFilesList extends React.Component {
     if (this.props.dbfiles && this.props.dbfiles.length) {
       listfiles = this.props.dbfiles.map((file) => {
         return (
-          <ListItem key={file} value={file} size="small" aria-label="Listed File">
+          <ListItem key={file} value={file} style={{maxHeight: "50px"}} size="small" aria-label="Listed File">
             <ListItemButton onClick={() => {this.props.g(file)}}>
               <DescriptionIcon/> <ListItemText primary={file}  />
             </ListItemButton>
