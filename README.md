@@ -12,7 +12,7 @@ To find our frontend, please see the **crime_database** folder (\*).
 
 To find our backend, please see the **scripts** folder (\*).
 
-To fubd current issues, please see the **Issues** section of this repo.
+To find current issues, please see the **Issues** section of this repo.
 
 This application involves the **Python** language and the **datasette** and **sqlite-utils** packages. Please ensure you have **Python 3** and **Git** installed on your computer before proceeding.
 
@@ -112,15 +112,7 @@ The capstone of our project. The user is provided a map, implemented in React Le
 The map visualization is implemented in **React Leaflet**, the **React** implementation of a popular open-source JS mapping library. The `<Map>` component will take in the name of the dataset as a prop, and consequently perform the fetch, to load the (multi)polygons for each city. It then color-codes each polygon depending on the calculated overall crime rate. You can click on each polygon to view the exact population and crime statistics, including the overall number of violent crimes committed in this region.
 
 ## Current coloring scheme
-There are currently eight categories of crime. Each are counted once to the overall crime count.
-1. murders (Violent)
-2. rapes (Violent)
-3. robberies
-4. assaults (Violent)
-5. burglaries
-6. larcenies
-7. autoThefts
-8. arson
+There are currently eight categories of crime. A formula is used to determine the color category.
 
 The coloring is determined by number of crimes per 100,000
 * `< 300`: Green
@@ -455,7 +447,19 @@ For goal 5, our goal was to allow the user to input a dataset with the same colu
 * Various datasets, including those with anomalous data, have been provided for testing purposes and verifyin that the application handles anomalies correctly.
     * A reference of the 150 fields is provided below.
     * More example anomalies are listed on the following section.
-* When compiling the docker container, our JS compilation test runs to ensure that our frontend can be successfully compiled
+* JS Tests: When compiling the docker container, our JS compilation test runs to ensure that our frontend can be successfully compiled
+
+To run unit tests, attach an interactive shell to the previously built docker repository.
+To do that, run the following command
+```
+docker run -it <container sha> bash
+```
+To run our testing, run the following shell script
+```
+./run_tests.sh
+```
+## Code linting
+A code linter runs on GitHub Actions to ensure that our code meets industry standards
 
 ## The 150 fields
 | Order  | Field             | Notes
@@ -656,4 +660,4 @@ For goal 5, our goal was to allow the user to input a dataset with the same colu
         * You cannot remove the fields. Instead, let missing data be `null`.
 
 # Authors
-Falcon, Piyush, Mulligan (2022)
+Philippe, Piyush, Mulligan (2022)
