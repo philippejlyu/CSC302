@@ -16,6 +16,8 @@ import TableHead from '@mui/material/TableHead';
 import TablePagination from '@mui/material/TablePagination';
 import TableRow from '@mui/material/TableRow';
 import TableSortLabel from '@mui/material/TableSortLabel';
+import Tooltip from '@mui/material/Tooltip';
+import Popover from '@mui/material/Popover';
 
 import Typography from '@mui/material/Typography';
 import Paper from '@mui/material/Paper';
@@ -58,7 +60,7 @@ function stableSort(array, comparator) {
 }
 
 const headCells = [
-  {id:0, numeric: true, abbrid:null, show:true, label: "Name"},
+  {id:0, numeric: true, abbrid:null, show:true, label: "communityName"},
   {id:2, numeric: true, abbrid:null, show:true, label: "countyCode"},
   {id:1, numeric: true, abbrid:null, show:true, label: "state"},
   {id:3, numeric: true, abbrid:null, show:false, label: "communityCode"},
@@ -215,6 +217,9 @@ const headCells = [
 class DatasetTable extends React.Component {
   constructor(props) {
     super(props);
+    this.state = {
+      anchor: null
+    }
   }
 
   render() {
@@ -240,25 +245,37 @@ class DatasetTable extends React.Component {
     var listrows = []
     if (this.props.dbRows && this.props.dbRows.rows !== undefined) {
       listrows = this.props.dbRows.rows.map((city) => {
-        var fontstyle = city[149] ? "blue" : "green";
+        var fontstyle = city.isState ? "blue" : "green";
+        var tooltiptext = (city) => {var str = ""; for (var k in city) {if (k != "geojson") str += k + " " + city[k] + ";\n"}; return str}
         var rows = headCells.map((cell) => {
           if (cell.id === 0) {
             return (
-              <TableCell key={`${city}[0]`} style={{border:"1px solid silver", color:{fontstyle}}}>
-                <b>{city[cell.id]}</b>
+              <TableCell 
+                key={`${city.state}.${city.communityName}[0]`} 
+                style={{border:"1px solid silver", color:{fontstyle}}}
+              >
+                <Tooltip title={tooltiptext(city)}>
+                  <Typography
+                    aria-owns={Boolean(this.anchor) ? 'mouse-over-popover' : undefined}
+                    aria-haspopup="true"
+                    onMouseEnter={(event) => this.setState({anchor: event.currentTarget})}
+                    onMouseLeave={() => this.setState({anchor: null})} 
+                    variant='p'>{city[cell.label]}
+                  </Typography>
+                </Tooltip>
               </TableCell>
             )
           }
           else if (cell.show) {
             return (
-              <TableCell key={`${city}[${cell.id}`} style={{border:"1px solid silver", color:{fontstyle}}}>
-                {city[cell.id]}
+              <TableCell key={`${city.state}.${city.communityName}[${cell.id}]`} style={{border:"1px solid silver", color:{fontstyle}}}>
+                {city[cell.label]}
               </TableCell>
             )
           }
         })
         return (
-          <TableRow key={`${city}`}>
+          <TableRow key={`${city.state}.${city.communityName}`}>
             {rows}
           </TableRow>
         )
@@ -361,6 +378,8 @@ const MyDatasets = () => {
         }
         else {
           console.log(res.status + ': My Datasets');
+          setDbrows([]);
+          setDbCount(-2);
           throw Error("Response not of correct format: Response does not have rows field");
         }
       })

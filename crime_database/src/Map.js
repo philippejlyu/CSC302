@@ -79,28 +79,28 @@ const Map = (props) => {
                 console.log(mapData);
                 for (var i = 0; i < mapData.rows.length; i++) {
                     // Handle edge cases for missing data
-                    var lat = mapData.rows[i][147];
-                    var lon = mapData.rows[i][148];
-                    var geo = mapData.rows[i][146];
+                    var lat = mapData.rows[i].lat;
+                    var lon = mapData.rows[i].lon;
+                    var geo = mapData.rows[i].geojson;
                     if (!lat || !lon || !geo) {
-                        console.error(`Error processing mapdata information: ${mapData.rows[i][0]} ; ${lat} ; ${lon} ; ${!geo ? "[0]" : "[" + geo.length + "]"}`);
+                        console.error(`Error processing mapdata information: ${mapData.rows[i].communityName} ; ${lat} ; ${lon} ; ${!geo ? "[0]" : "[" + geo.length + "]"}`);
                         continue;
                     }
                     locations.push({
-                        "lat": mapData.rows[i][147], // Must be present
-                        "lon": mapData.rows[i][148], // Must be present
-                        "cityname": mapData.rows[i][0],
-                        "population": mapData.rows[i][4],
-                        "populationDensity": mapData.rows[i][120],
-                        "murders": mapData.rows[i][128],
-                        "rapes": mapData.rows[i][130],
-                        "robberies": mapData.rows[i][132],
-                        "assaults": mapData.rows[i][134],
-                        "burglaries": mapData.rows[i][136],
-                        "larcenies": mapData.rows[i][138],
-                        "autoTheft": mapData.rows[i][140],
-                        "arson": mapData.rows[i][142],
-                        "boundingBox": mapData.rows[i][146], // Must be present
+                        "lat": mapData.rows[i].lat, // Must be present
+                        "lon": mapData.rows[i].lon, // Must be present
+                        "cityname": mapData.rows[i].cityname,
+                        "population": mapData.rows[i].population,
+                        "populationDensity": mapData.rows[i].populationDensity,
+                        "murders": mapData.rows[i].murders,
+                        "rapes": mapData.rows[i].rapes,
+                        "robberies": mapData.rows[i].robberies,
+                        "assaults": mapData.rows[i].assaults,
+                        "burglaries": mapData.rows[i].burglaries,
+                        "larcenies": mapData.rows[i].larcenies,
+                        "autoTheft": mapData.rows[i].autoTheft,
+                        "arson": mapData.rows[i].arsons,
+                        "boundingBox": mapData.rows[i].geojson, // Must be present
                         "id": i
                     })
                 }
@@ -123,25 +123,25 @@ const Map = (props) => {
             var stateLocations = []
             for (var i = 0; i < mapData.rows.length; i++) {
                 // Handle edge cases for missing data
-                var geo = mapData.rows[i][146];
+                var geo = mapData.rows[i].geojson;
                 if (!geo) {
-                    console.error(`Error processing mapdata information: ${mapData.rows[i][0]} ; ${!geo ? "[0]" : "[" + geo.length + "]"}`);
+                    console.error(`Error processing mapdata information: ${mapData.rows[i].communityName} ; ${!geo ? "[0]" : "[" + geo.length + "]"}`);
                     continue;
                 }
                 stateLocations.push({
-                    "lat": mapData.rows[i][147],
-                    "lon": mapData.rows[i][148],
-                    "cityname": mapData.rows[i][0],
-                    "population": mapData.rows[i][4],
-                    "populationDensity": mapData.rows[i][120],
-                    "murders": mapData.rows[i][128],
-                    "rapes": mapData.rows[i][130],
-                    "robberies": mapData.rows[i][132],
-                    "assaults": mapData.rows[i][134],
-                    "burglaries": mapData.rows[i][136],
-                    "larcenies": mapData.rows[i][138],
-                    "autoTheft": mapData.rows[i][140],
-                    "arson": mapData.rows[i][142],
+                    "lat": mapData.rows[i].lat,
+                    "lon": mapData.rows[i].lon,
+                    "cityname": mapData.rows[i].cityname,
+                    "population": mapData.rows[i].population,
+                    "populationDensity": mapData.rows[i].populationDensity,
+                    "murders": mapData.rows[i].murders,
+                    "rapes": mapData.rows[i].rapes,
+                    "robberies": mapData.rows[i].robberies,
+                    "assaults": mapData.rows[i].assaults,
+                    "burglaries": mapData.rows[i].burglaries,
+                    "larcenies": mapData.rows[i].larcenies,
+                    "autoTheft": mapData.rows[i].autoTheft,
+                    "arson": mapData.rows[i].arsons,
                     "boundingBox": geo,
                     "id": "stateLevel" + i
                 })

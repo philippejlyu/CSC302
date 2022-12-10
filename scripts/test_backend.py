@@ -2,7 +2,7 @@ import pytest
 import sqlite3
 # from flask_main import *
 
-
+# Test cases for Sample
 def test_sql_query():
     con = sqlite3.connect("./db/crime.db")
     cur = con.cursor()
@@ -21,6 +21,15 @@ def test_sql_query3():
     cur = con.cursor()
     res = cur.execute("SELECT count(*) FROM locations WHERE state = 'CA' AND communityName = 'Los Angeles'")
     assert res.fetchone()[0] == 1
+
+# Pathological test cases
+def test_switch():
+    con = sqlite3.connect("./db/sample.db")
+    cur = con.cursor()
+    res = cur.execute("SELECT count(*) FROM locations WHERE state = 'VA')
+    assert res.fetchone()[0] == 33
+
+# Test cases for uploading
 
 # def test_query_map_data():
 #     print(flask_main)
