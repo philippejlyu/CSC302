@@ -426,6 +426,24 @@ Press CTRL+C to quit
 
 The application can be found at `localhost:3000`.
 
+# Feature delivery
+As per our Assignment 1 deliverable, we planned to have the following functionality completed by Assignemnt 3
+
+1. Method to import data into the SQLite database
+2. Have a react frontend
+3. Create a backend that serves the frontend and its associated data
+4. Support different types of visualizations
+5. Allow users to import similarly formatted datasets
+
+Goal 1-4 have been met according to the following acceptance criteria
+1. Input the dataset from kaggle and be able to run SQL commands on it
+2. Have a basic website that displays our dataset
+3. Have a backend that serves valid data to the frontend
+4. Have 2 or more kinds of visualizations. Map view, my datasets view, map popup view
+
+Goal 5 partially met what we desired.
+For goal 5, our goal was to allow the user to input a dataset with the same column names, but allow them to be missing a few non-important columns. As of now, this is not possible, however we do allow the user to input identically formatted datsets.
+
 # Testing
 * Use F12 to check logging and frontend testing status.
     * Errors are logged as warnings on the console
@@ -437,6 +455,7 @@ The application can be found at `localhost:3000`.
 * Various datasets, including those with anomalous data, have been provided for testing purposes and verifyin that the application handles anomalies correctly.
     * A reference of the 150 fields is provided below.
     * More example anomalies are listed on the following section.
+* When compiling the docker container, our JS compilation test runs to ensure that our frontend can be successfully compiled
 
 ## The 150 fields
 | Order  | Field             | Notes
