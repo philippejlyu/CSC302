@@ -1,0 +1,6 @@
+communityName,state,countyCode,communityCode,population,murders,murdPerPop,rapes,rapesPerPop,robberies,robbbPerPop,assaults,assaultPerPop,burglaries,burglPerPop,larcenies,larcPerPop,autoTheft,autoTheftPerPop,arsons,arsonsPerPop,ViolentCrimesPerPop,nonViolPerPop
+Jaspercity,IN,,,10030,0,0,0,0,1,9.13,26,237.42,35,319.61,191,1744.13,3,27.39,1,9.13,246.55,2100.26
+Plainstownship,PA,79,61120,10988,0,0,2,17.9,4,35.79,14,125.28,78,697.99,271,2425.06,21,187.92,1,8.95,178.97,3319.91
+Burrillvilletown,RI,7,11800,16230,0,0,1,5.97,0,0,14,83.64,63,376.37,120,716.89,9,53.77,1,5.97,89.61,1153
+Polandtownship,OH,99,63968,13993,0,0,1,8.85,0,0,0,0,26,230.05,79,698.99,12,106.18,1,8.85,8.85,1044.06
+Providencecity,RI,99,63968,13993,0,0,1,8.85,0,0,0,0,26,230.05,79,698.99,12,106.18,1,8.85,8.85,1044.06
