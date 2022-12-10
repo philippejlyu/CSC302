@@ -30,6 +30,9 @@ Run the following command in your terminal to clone the repository.
 git clone https://github.com/philippejlyu/CSC302.git
 ```
 
+The size of the cloned repository will be more than 80 MB, due to the 50MB size of the `crime.db` sample database (data folder is at 1.6MB). The `node_modules` folder will clock in at 318.4 MB.
+
+
 ## Starting the Backend
 Navigate to the backend folder, `$BACKEND`, which is currently `/scripts/`. After having the required Python modules installed, as outlined in `requirements.txt`, simply run
 

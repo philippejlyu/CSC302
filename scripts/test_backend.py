@@ -26,7 +26,7 @@ def test_sql_query3():
 def test_switch():
     con = sqlite3.connect("./db/virginias.db")
     cur = con.cursor()
-    res = cur.execute("SELECT count(*) FROM locations WHERE state = 'VA')
+    res = cur.execute("SELECT count(*) FROM locations WHERE state = 'VA'")
     assert res.fetchone()[0] == 33
 
 # Test cases for uploading
