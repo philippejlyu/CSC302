@@ -32,109 +32,7 @@ git clone https://github.com/philippejlyu/CSC302.git
 
 The size of the cloned repository will be more than 80 MB, due to the 50MB size of the `crime.db` sample database (data folder is at 1.6MB). The `node_modules` folder will clock in at 318.4 MB.
 
-
-## Starting the Backend
-Navigate to the backend folder, `$BACKEND`, which is currently `/scripts/`. After having the required Python modules installed, as outlined in `requirements.txt`, simply run
-
-```
-python3 flask_main.py
-```
-
-## Starting the Frontend
-Navigate to the frontend folder, `$FRONTEND`, which is currently `/crime_database`. Perform NPM install and build via
-
-```
-npm i
-npm run build
-```
-
-After the application was build, simply run
-```
-npm run start
-```
-
-# Uploading new datasets
-Datasets will be uploaded on the main page of this app. You can upload files by drag-and-drop or clicking the **Upload** button. All datasets uploaded will be a .csv or .xlsx file structured in the following way:
-* Header must contain the column names as according to the `data/crimedata.csv` file. There are **146** different fields, some of them mandatory.
-* Entries must be identified by their community name and state.
-
-Our dataset schema is decided based on a [**single Kaggle** dataset](https://www.kaggle.com/datasets/michaelbryantds/crimedata) by Michael Bryant. This dataset contains 146 different fields, but only a few of them are actively involved in the backend, while extraneous fields are here for future expansions. Sqlite will add four more different fields, in which it will use the community name and state information to obtain geographical boundaries as a Polygon, and then add a flag stating whether it is city-level or state-level.
-
-It is important that some fields, such as the community name, state, population, land area, and important percentage-based datasets be not null to avoid complications from the backend and frontend. Concessions have to be made should an anomalous entry be entered.
-
-![Upload](notes/Screenshots/AppUploadSuccess.png)
-
-## Data prerequisites
-Community name is formatted with **no spaces**. Instead of spaces, have a capital letter denoting the space ending with the city type.
-* For example, Los Angeles would be `LosAngelescity`
-* Community name needs to be a valid city that can be searchable by open street map
-* Commuinty name needs to be a valid city with geographical boundaries regonzied by open street map
-
-## Process
-Upon dragging the files, they will be sent to the backend via `http://localhost:3000/upload`. The backend will process each row, using the `CommunityName` and `State` values to obtain the polygons and coordinates of this municipality. The rows will be stored in the newly created `locations` table of the corresponding `.db` file stored in the `$BACKEND/db/` folder.
-
-The status will say *Uploading* when there is a pending upload in progress, *Success* when all uploads are successful, and *Error* in case any of the uploads are not successful.
-
-## Temporarily Restrictions
-* There is a rate limit of 1 per second for our geocoding api. Large datasets may take hours to process.
-* City needs to be within the USA and each must have a state associated with it. Territories such as Puerto Rico, Guam etc will not work.
-* Cities with unknown regions will be treated as valid, but will not have an associated polygon.
-    * Thus, in Visualization, the console will log `Error processing mapdata information: $CommunityName ; 0 ; 0 ; [[]]`.
-    * There will be no abnormal return status. However, the offending city will not be visible on the map.
-* Corrupt datasets and files not of a given format will be handled accordingly with a `418 TEAPOT` response.
-    * Corrupt datasets can be noted by the warning log `Error: Response not of correct format: Response does not have rows field`.
-    * This can be reflected on the **Network** tab on F12, in which the exact reason can be spotted.
-    * It is possible for a .db to work normally on My Datasets, but regarded as corrupt on Visualize.
-    * An example is `crimedata_corruptisstate.db`, in which the requets fails due to lacking the `isState` flag only used in the Visualization tab.
-    * All non-db files are removed upon performing upload.
-* It is currently a hassle to manually input all the data into a CSV.
-
-# My Datasets
-The user is able to view all of the data after selecting or reselecting the databases processed and stored on the backend. The most important data are shown on the table, further data can be seen by hovering over the community name.
-
-The displayed data is derived from the response after calling `http://localhost:3000/mapData?allLevel&datasetID=$DBNAME` where `$DBNAME` is the name of the database file as found in `$BACKEND/db/`. The response will be a collection of **rows**, where each row is a JSON object containing attributes corresponding to the column names found in the `locations` table of that `.db` file.
-
-If the `.db` file is not of the correct format, such as lacking the `locations` table, or being a folder, a 418 TEAPOT response will be sent by the backend.
-
-![Upload](notes/Screenshots/AppMyDatasets.png)
-
-## Temporarily Restrictions
-* The UX experience for viewing all the data is currently suboptimal
-    * With 150 fields, the tooltip may overflow
-* Sorting and showing/hiding column are currently not supported
-* The entire table will be loaded, making the experience slow for large datasets
-* The fetch will always fail and return a HTTP 300 if the `db` file contains only whitespaces, or is named `"null"`.
-* All files on the `db` folder will be listed. Currently, the backend glitches, sends out 500, but refuses to process anyways when a folder is used.
-
-# Visualize
-The capstone of our project. The user is provided a map, implemented in React Leaflet. After selecting a file, the app will load the polygons to provide a crime frequency choropleth. A dropdown is provided at the top to filter the visualizations; a backend fetch is done each time you change the dataset.
-
-The map visualization is implemented in **React Leaflet**, the **React** implementation of a popular open-source JS mapping library. The `<Map>` component will take in the name of the dataset as a prop, and consequently perform the fetch, to load the (multi)polygons for each city. It then color-codes each polygon depending on the calculated overall crime rate. You can click on each polygon to view the exact population and crime statistics, including the overall number of violent crimes committed in this region.
-
-## Current coloring scheme
-There are currently eight categories of crime. A formula is used to determine the color category.
-
-The coloring is determined by number of crimes per 100,000
-* `< 300`: Green
-* `< 500`: Yellow
-* `< 700`: Orange
-* `> 700`: Red
-* If there are any missing information (a nonzero falsy value), the polygon is colored gray to prevent underreporting. Check these as well!
-
-![Visualize Red](notes/Screenshots/AppVisualizeTristate.png)
-<details><summary>Click for more screenshots</summary>
-
-![Visualize Yellow](notes/Screenshots/AppVisualizeYellow.png)
-![Visualize States](notes/Screenshots/AppVisualizeState.png)
-![Visualize Underreport](notes/Screenshots/AppVisualizeNan.png)
-</details>
-
-## Temporarily Restrictions
-* Visualization can be very slow if the dataset is very large containing thousands of cities.
-* We have not implemented a feature to dynamically load cities when the polygons are in range.
-* We haven't customized the colors yet. They are hard coded in some form.
-
-# Running on Docker
+##Running on Docker
 Navigate to the root directory of the cloned repository locally (folder named `CSC302`) and execute the following command in your terminal to run the application in a browser window. The pip packages will be installed by this shell file in addition to running the webserver.
 
 Precondition: Docker must be installed on your computer. You may need to use sudo if you are running on Linux. The Docker image will be at least 2GB in total, and 1493 npm packages are utilized. There are six high security vulnerabilities.
@@ -417,6 +315,108 @@ Press CTRL+C to quit
 </details>
 
 The application can be found at `localhost:3000`.
+
+
+## Starting the Backend (debug)
+Navigate to the backend folder, `$BACKEND`, which is currently `/scripts/`. After having the required Python modules installed, as outlined in `requirements.txt`, simply run
+
+```
+python3 flask_main.py
+```
+
+## Starting the Frontend (debug)
+Navigate to the frontend folder, `$FRONTEND`, which is currently `/crime_database`. Perform NPM install and build via
+
+```
+npm i
+npm run build
+```
+
+After the application was build, simply run
+```
+npm run start
+```
+
+# Uploading new datasets
+Datasets will be uploaded on the main page of this app. You can upload files by drag-and-drop or clicking the **Upload** button. All datasets uploaded will be a .csv or .xlsx file structured in the following way:
+* Header must contain the column names as according to the `data/crimedata.csv` file. There are **146** different fields, some of them mandatory.
+* Entries must be identified by their community name and state.
+
+Our dataset schema is decided based on a [**single Kaggle** dataset](https://www.kaggle.com/datasets/michaelbryantds/crimedata) by Michael Bryant. This dataset contains 146 different fields, but only a few of them are actively involved in the backend, while extraneous fields are here for future expansions. Sqlite will add four more different fields, in which it will use the community name and state information to obtain geographical boundaries as a Polygon, and then add a flag stating whether it is city-level or state-level.
+
+It is important that some fields, such as the community name, state, population, land area, and important percentage-based datasets be not null to avoid complications from the backend and frontend. Concessions have to be made should an anomalous entry be entered.
+
+![Upload](notes/Screenshots/AppUploadSuccess.png)
+
+## Data prerequisites
+Community name is formatted with **no spaces**. Instead of spaces, have a capital letter denoting the space ending with the city type.
+* For example, Los Angeles would be `LosAngelescity`
+* Community name needs to be a valid city that can be searchable by open street map
+* Commuinty name needs to be a valid city with geographical boundaries regonzied by open street map
+
+## Process
+Upon dragging the files, they will be sent to the backend via `http://localhost:3000/upload`. The backend will process each row, using the `CommunityName` and `State` values to obtain the polygons and coordinates of this municipality. The rows will be stored in the newly created `locations` table of the corresponding `.db` file stored in the `$BACKEND/db/` folder.
+
+The status will say *Uploading* when there is a pending upload in progress, *Success* when all uploads are successful, and *Error* in case any of the uploads are not successful.
+
+## Temporarily Restrictions
+* There is a rate limit of 1 per second for our geocoding api. Large datasets may take hours to process.
+* City needs to be within the USA and each must have a state associated with it. Territories such as Puerto Rico, Guam etc will not work.
+* Cities with unknown regions will be treated as valid, but will not have an associated polygon.
+    * Thus, in Visualization, the console will log `Error processing mapdata information: $CommunityName ; 0 ; 0 ; [[]]`.
+    * There will be no abnormal return status. However, the offending city will not be visible on the map.
+* Corrupt datasets and files not of a given format will be handled accordingly with a `418 TEAPOT` response.
+    * Corrupt datasets can be noted by the warning log `Error: Response not of correct format: Response does not have rows field`.
+    * This can be reflected on the **Network** tab on F12, in which the exact reason can be spotted.
+    * It is possible for a .db to work normally on My Datasets, but regarded as corrupt on Visualize.
+    * An example is `crimedata_corruptisstate.db`, in which the requets fails due to lacking the `isState` flag only used in the Visualization tab.
+    * All non-db files are removed upon performing upload.
+* It is currently a hassle to manually input all the data into a CSV.
+
+# My Datasets
+The user is able to view all of the data after selecting or reselecting the databases processed and stored on the backend. The most important data are shown on the table, further data can be seen by hovering over the community name.
+
+The displayed data is derived from the response after calling `http://localhost:3000/mapData?allLevel&datasetID=$DBNAME` where `$DBNAME` is the name of the database file as found in `$BACKEND/db/`. The response will be a collection of **rows**, where each row is a JSON object containing attributes corresponding to the column names found in the `locations` table of that `.db` file.
+
+If the `.db` file is not of the correct format, such as lacking the `locations` table, or being a folder, a 418 TEAPOT response will be sent by the backend.
+
+![Upload](notes/Screenshots/AppMyDatasets.png)
+
+## Temporarily Restrictions
+* The UX experience for viewing all the data is currently suboptimal
+    * With 150 fields, the tooltip may overflow
+* Sorting and showing/hiding column are currently not supported
+* The entire table will be loaded, making the experience slow for large datasets
+* The fetch will always fail and return a HTTP 300 if the `db` file contains only whitespaces, or is named `"null"`.
+* All files on the `db` folder will be listed. Currently, the backend glitches, sends out 500, but refuses to process anyways when a folder is used.
+
+# Visualize
+The capstone of our project. The user is provided a map, implemented in React Leaflet. After selecting a file, the app will load the polygons to provide a crime frequency choropleth. A dropdown is provided at the top to filter the visualizations; a backend fetch is done each time you change the dataset.
+
+The map visualization is implemented in **React Leaflet**, the **React** implementation of a popular open-source JS mapping library. The `<Map>` component will take in the name of the dataset as a prop, and consequently perform the fetch, to load the (multi)polygons for each city. It then color-codes each polygon depending on the calculated overall crime rate. You can click on each polygon to view the exact population and crime statistics, including the overall number of violent crimes committed in this region.
+
+## Current coloring scheme
+There are currently eight categories of crime. A formula is used to determine the color category.
+
+The coloring is determined by number of crimes per 100,000
+* `< 300`: Green
+* `< 500`: Yellow
+* `< 700`: Orange
+* `> 700`: Red
+* If there are any missing information (a nonzero falsy value), the polygon is colored gray to prevent underreporting. Check these as well!
+
+![Visualize Red](notes/Screenshots/AppVisualizeTristate.png)
+<details><summary>Click for more screenshots</summary>
+
+![Visualize Yellow](notes/Screenshots/AppVisualizeYellow.png)
+![Visualize States](notes/Screenshots/AppVisualizeState.png)
+![Visualize Underreport](notes/Screenshots/AppVisualizeNan.png)
+</details>
+
+## Temporarily Restrictions
+* Visualization can be very slow if the dataset is very large containing thousands of cities.
+* We have not implemented a feature to dynamically load cities when the polygons are in range.
+* We haven't customized the colors yet. They are hard coded in some form.
 
 # Feature delivery
 As per our Assignment 1 deliverable, we planned to have the following functionality completed by Assignemnt 3
